@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Where Am I?</string>
+    <string name="title_location_strategy_detail">Metoda lokalizacji</string>
+    <string name="read_qr_code">Read QR Code</string>
+</resources>
