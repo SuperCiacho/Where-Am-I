@@ -1,14 +1,13 @@
 package master.pwr.whereami.models.locators;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.location.LocationManager;
 
-import master.pwr.whereami.DetailActivity;
-import master.pwr.whereami.QRCodeActivity;
+import master.pwr.whereami.R;
 import master.pwr.whereami.enums.LocationStrategyType;
+import master.pwr.whereami.fragments.QRReaderFragment;
+
 
 /**
  * "Where Am I?"
@@ -16,15 +15,16 @@ import master.pwr.whereami.enums.LocationStrategyType;
  */
 public class QRCodeLocator extends BaseLocator
 {
-    public QRCodeLocator(Activity activity)
+    public QRCodeLocator(Context context)
     {
-        super(activity);
+        super(context);
     }
 
     @Override
     protected void setup()
     {
-        locationProvider = locationManager.getProvider(LocationManager.PASSIVE_PROVIDER);
+        providerName = LocationManager.PASSIVE_PROVIDER;
+        locationProvider = locationManager.getProvider(providerName);
     }
 
     @Override
@@ -34,31 +34,14 @@ public class QRCodeLocator extends BaseLocator
     }
 
     @Override
-    public void dumpStats()
+    public void localize(Fragment fragment)
     {
-    }
+        super.localize(fragment);
 
-    @Override
-    public void localize()
-    {
-        ((Activity)context).startActivityForResult(new Intent(context, QRCodeActivity.class), 50123);
-    }
-
-    @Override
-    public void stop()
-    {
-
-    }
-
-    @Override
-    public void reset()
-    {
-
-    }
-
-    @Override
-    public void restart()
-    {
-
+        QRReaderFragment qrFragment = QRReaderFragment.newInstance();
+        fragment.getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.inner_fragment_container, qrFragment)
+                .commit();
     }
 }

@@ -1,6 +1,5 @@
-package master.pwr.whereami;
+package master.pwr.whereami.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.LayoutInflater;
@@ -8,19 +7,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.MapFragment;
+
+import master.pwr.whereami.R;
+import master.pwr.whereami.activities.MethodControllerActivity;
+import master.pwr.whereami.activities.MainActivity;
 import master.pwr.whereami.enums.LocationStrategyType;
 import master.pwr.whereami.interfaces.LocationStrategy;
+import master.pwr.whereami.interfaces.StatsUpdater;
+import master.pwr.whereami.models.Stats;
 import master.pwr.whereami.tools.LocatorFactory;
 
 /**
  * A fragment representing a single LocationStrategy detail screen.
  * This fragment is either contained in a {@link MainActivity}
- * in two-pane mode (on tablets) or a {@link DetailActivity}
+ * in two-pane mode (on tablets) or a {@link MethodControllerActivity}
  * on handsets.
  */
-public class DetailFragment extends Fragment
+public class MethodControllerFragment extends Fragment implements StatsUpdater
 {
     private LocationStrategy mItem;
+    private Stats stats;
 
     /**
      * The fragment argument representing the item ID that this fragment
@@ -32,7 +39,7 @@ public class DetailFragment extends Fragment
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public DetailFragment()
+    public MethodControllerFragment()
     {
     }
 
@@ -47,6 +54,7 @@ public class DetailFragment extends Fragment
                     getActivity(),
                     LocationStrategyType.getByValue(
                             getArguments().getInt(ARG_ITEM_ID)));
+            mItem.setStatsUpdater(this);
         }
     }
 
@@ -54,9 +62,10 @@ public class DetailFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_locationstartegy_detail, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_method_controller, container, false);
 
-        // Show the dummy content as text in a TextView.
+        getFragmentManager().beginTransaction().replace(R.id.inner_fragment_container, new MapFragment()).commit();
+
         if (mItem != null)
         {
             ((TextView) rootView.findViewById(R.id.location_strategy_detail)).setText(mItem.getName());
@@ -65,9 +74,9 @@ public class DetailFragment extends Fragment
                 @Override
                 public void onClick(View v)
                 {
-
-                    mItem.localize();
-                    // mItem.retrieveStats();
+                    mItem.dumpStats(true);
+                    mItem.prepare();
+                    mItem.localize(MethodControllerFragment.this);
                 }
             });
         }
@@ -76,8 +85,19 @@ public class DetailFragment extends Fragment
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    public void onPause()
     {
-        super.onActivityResult(requestCode, resultCode, data);
+        super.onPause();
+        mItem.stop();
     }
+
+    @Override
+    public void updateStats(Stats stats)
+    {
+        this.stats = stats;
+        mItem.showMap(getFragmentManager());
+        mItem.dumpStats(false);
+    }
+
+
 }

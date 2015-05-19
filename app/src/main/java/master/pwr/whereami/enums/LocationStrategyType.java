@@ -1,5 +1,7 @@
 package master.pwr.whereami.enums;
 
+import android.util.Log;
+
 /**
  * "Where Am I?"
  * Created by Bartosz on 2015-05-16.
@@ -42,6 +44,11 @@ public enum LocationStrategyType
                 lst = type;
                 break;
             }
+        }
+
+        if(lst == null)
+        {
+            Log.d("Location Strategy Type", "Not found any LST for value:" + value);
         }
 
         return lst;

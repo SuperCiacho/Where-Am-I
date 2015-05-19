@@ -1,6 +1,9 @@
 package master.pwr.whereami.models.locators;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.location.LocationManager;
 import android.nfc.NfcAdapter;
 
@@ -18,16 +21,15 @@ public class DeadReckoningLocator extends BaseLocator
     public DeadReckoningLocator(Context context)
     {
         super(context);
+        providerName = LocationManager.PASSIVE_PROVIDER;
     }
 
     @Override
     protected void setup()
     {
-        locationProvider = locationManager.getProvider(LocationManager.PASSIVE_PROVIDER);
+        locationProvider = locationManager.getProvider(providerName);
         ServiceHelper.getInstance().setWifiEnabled(false);
         ServiceHelper.getInstance().setMobileDataEnabled(false);
-
-        nfc = NfcAdapter.getDefaultAdapter(context);
     }
 
     @Override
@@ -37,32 +39,8 @@ public class DeadReckoningLocator extends BaseLocator
     }
 
     @Override
-    public void dumpStats()
+    public void localize(Fragment fragment)
     {
-
-    }
-
-    @Override
-    public void localize()
-    {
-
-    }
-
-    @Override
-    public void stop()
-    {
-
-    }
-
-    @Override
-    public void reset()
-    {
-
-    }
-
-    @Override
-    public void restart()
-    {
-
+        super.localize(fragment);
     }
 }

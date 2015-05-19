@@ -1,10 +1,13 @@
-package master.pwr.whereami;
+package master.pwr.whereami.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 
 import android.view.MenuItem;
+
+import master.pwr.whereami.fragments.MethodControllerFragment;
+import master.pwr.whereami.R;
 
 
 /**
@@ -14,9 +17,9 @@ import android.view.MenuItem;
  * in a {@link MainActivity}.
  * <p/>
  * This activity is mostly just a 'shell' activity containing nothing
- * more than a {@link DetailFragment}.
+ * more than a {@link MethodControllerFragment}.
  */
-public class DetailActivity extends Activity
+public class MethodControllerActivity extends Activity
 {
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -41,12 +44,12 @@ public class DetailActivity extends Activity
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putInt(DetailFragment.ARG_ITEM_ID,
-                    getIntent().getIntExtra(DetailFragment.ARG_ITEM_ID, -1));
-            DetailFragment fragment = new DetailFragment();
+            arguments.putInt(MethodControllerFragment.ARG_ITEM_ID,
+                    getIntent().getIntExtra(MethodControllerFragment.ARG_ITEM_ID, -1));
+            MethodControllerFragment fragment = new MethodControllerFragment();
             fragment.setArguments(arguments);
             getFragmentManager().beginTransaction()
-                                .add(R.id.locationstartegy_detail_container, fragment)
+                                .add(R.id.fragment_container, fragment)
                                 .commit();
         }
     }
@@ -67,11 +70,5 @@ public class DetailActivity extends Activity
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 }

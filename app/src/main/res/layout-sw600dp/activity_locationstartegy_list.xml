@@ -18,14 +18,14 @@
 
     <fragment
         android:id="@+id/locationstartegy_list"
-        android:name="master.pwr.whereami.MainFragment"
+        android:name="master.pwr.whereami.fragments.MainFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
         tools:layout="@android:layout/list_content"/>
 
     <FrameLayout
-        android:id="@+id/locationstartegy_detail_container"
+        android:id="@+id/fragment_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3"/>

@@ -1,8 +1,12 @@
 package master.pwr.whereami.tools;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -72,50 +76,31 @@ public class ServiceHelper
      * Mobile Data (Connectivity Manager)
      */
 
-    private ConnectivityManager getConnectivityManager()
+    private TelephonyManager getTelephonyManager()
     {
-        if (!services.containsKey(Context.CONNECTIVITY_SERVICE))
+        if (!services.containsKey(Context.TELEPHONY_SERVICE))
         {
-            services.put(Context.CONNECTIVITY_SERVICE, context.getSystemService(Context.CONNECTIVITY_SERVICE));
+            services.put(Context.TELEPHONY_SERVICE, context.getSystemService(Context.TELEPHONY_SERVICE));
         }
 
-        return (ConnectivityManager) services.get(Context.CONNECTIVITY_SERVICE);
+        return (TelephonyManager) services.get(Context.TELEPHONY_SERVICE);
     }
 
-    public void setMobileDataEnabled(boolean enabled)
+    public boolean getMobileDataEnabled()
     {
-        Method dataMtd = null;
+        int state = getTelephonyManager().getDataState();
+        return state == TelephonyManager.DATA_CONNECTED || state == TelephonyManager.DATA_CONNECTING;
+    }
 
-        try
+    public void setMobileDataEnabled(boolean mobileData)
+    {
+        if(ServiceHelper.getInstance().getMobileDataEnabled())
         {
-            dataMtd = ConnectivityManager.class.getDeclaredMethod("setMobileDataEnabled", boolean.class);
-            dataMtd.setAccessible(true);
-        }
-        catch (NoSuchMethodException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-
-        try
-        {
-            dataMtd.invoke(getConnectivityManager(), true);
-        }
-        catch (IllegalArgumentException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        catch (InvocationTargetException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Toast.makeText(
+                    context,
+                    String.format("%s dane mobilne.", mobileData ? "Włącz" : "Wyłącz"),
+                    Toast.LENGTH_SHORT).show();
+            context.startActivity(new Intent(Settings.ACTION_APN_SETTINGS));
         }
     }
 }

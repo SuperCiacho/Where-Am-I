@@ -1,4 +1,4 @@
-package master.pwr.whereami;
+package master.pwr.whereami.fragments;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -14,7 +14,7 @@ import master.pwr.whereami.adapters.LocationStrategiesAdapter;
  * A list fragment representing a list of LocationStartegies. This fragment
  * also supports tablet devices by allowing list items to be given an
  * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link DetailFragment}.
+ * currently being viewed in a {@link MethodControllerFragment}.
  * <p/>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.

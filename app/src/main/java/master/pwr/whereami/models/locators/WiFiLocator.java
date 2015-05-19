@@ -1,6 +1,9 @@
 package master.pwr.whereami.models.locators;
 
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.location.LocationManager;
 
 import master.pwr.whereami.enums.LocationStrategyType;
@@ -20,7 +23,8 @@ public class WiFiLocator extends BaseLocator
     @Override
     protected void setup()
     {
-        locationProvider = locationManager.getProvider(LocationManager.NETWORK_PROVIDER);
+        providerName = LocationManager.NETWORK_PROVIDER;
+        locationProvider = locationManager.getProvider(providerName);
         ServiceHelper.getInstance().setWifiEnabled(true);
         ServiceHelper.getInstance().setMobileDataEnabled(false);
     }
@@ -32,32 +36,8 @@ public class WiFiLocator extends BaseLocator
     }
 
     @Override
-    public void dumpStats()
+    public void localize(Fragment fragment)
     {
-
-    }
-
-    @Override
-    public void localize()
-    {
-
-    }
-
-    @Override
-    public void stop()
-    {
-
-    }
-
-    @Override
-    public void reset()
-    {
-
-    }
-
-    @Override
-    public void restart()
-    {
-
+        super.localize(fragment);
     }
 }

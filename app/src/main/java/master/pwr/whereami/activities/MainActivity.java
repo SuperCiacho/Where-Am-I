@@ -1,21 +1,25 @@
-package master.pwr.whereami;
+package master.pwr.whereami.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
+
+import master.pwr.whereami.fragments.MethodControllerFragment;
+import master.pwr.whereami.fragments.MainFragment;
+import master.pwr.whereami.R;
 
 
 /**
  * An activity representing a list of LocationStartegies. This activity
  * has different presentations for handset and tablet-size devices. On
  * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link DetailActivity} representing
+ * lead to a {@link MethodControllerActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
  * <p/>
  * The activity makes heavy use of fragments. The list of items is a
  * {@link MainFragment} and the item details
- * (if present) is a {@link DetailFragment}.
+ * (if present) is a {@link MethodControllerFragment}.
  * <p/>
  * This activity also implements the required
  * {@link MainFragment.Callbacks} interface
@@ -36,7 +40,7 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locationstartegy_list);
 
-        if (findViewById(R.id.locationstartegy_detail_container) != null)
+        if (findViewById(R.id.fragment_container) != null)
         {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -67,11 +71,11 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putInt(DetailFragment.ARG_ITEM_ID, id);
-            DetailFragment fragment = new DetailFragment();
+            arguments.putInt(MethodControllerFragment.ARG_ITEM_ID, id);
+            MethodControllerFragment fragment = new MethodControllerFragment();
             fragment.setArguments(arguments);
             getFragmentManager().beginTransaction()
-                                .replace(R.id.locationstartegy_detail_container, fragment)
+                                .replace(R.id.fragment_container, fragment)
                                 .commit();
 
         }
@@ -79,8 +83,8 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
         {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
-            Intent detailIntent = new Intent(this, DetailActivity.class);
-            detailIntent.putExtra(DetailFragment.ARG_ITEM_ID, id);
+            Intent detailIntent = new Intent(this, MethodControllerActivity.class);
+            detailIntent.putExtra(MethodControllerFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
         }
     }

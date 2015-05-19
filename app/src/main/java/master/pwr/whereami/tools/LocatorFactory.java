@@ -1,6 +1,7 @@
 package master.pwr.whereami.tools;
 
 import android.app.Activity;
+import android.content.Context;
 
 import java.util.EnumMap;
 
@@ -21,9 +22,9 @@ public final class LocatorFactory
 {
     private static EnumMap<LocationStrategyType, BaseLocator> locators = new EnumMap<>(LocationStrategyType.class);
 
-    public static BaseLocator getLocationStrategy(Activity activity, LocationStrategyType locationStrategyType)
+    public static BaseLocator getLocationStrategy(Context context, LocationStrategyType locationStrategyType)
     {
-        if(locationStrategyType == null || activity == null)
+        if(locationStrategyType == null || context == null)
         {
             throw new IllegalArgumentException("Are you serious? Null? As method parameter? Not on my watch!");
         }
@@ -34,22 +35,22 @@ public final class LocatorFactory
             switch (locationStrategyType)
             {
                 case DEAD_RECKONING:
-                    ls = new DeadReckoningLocator(activity);
+                    ls = new DeadReckoningLocator(context);
                     break;
                 case GPS:
-                    ls = new GPSLocator(activity);
+                    ls = new GPSLocator(context);
                     break;
                 case GSM:
-                    ls = new GSMLocator(activity);
+                    ls = new GSMLocator(context);
                     break;
                 case NFC:
-                    ls = new NFCLocator(activity);
+                    ls = new NFCLocator(context);
                     break;
                 case QR_CODE:
-                    ls = new QRCodeLocator(activity);
+                    ls = new QRCodeLocator(context);
                     break;
                 case WIFI:
-                    ls = new WiFiLocator(activity);
+                    ls = new WiFiLocator(context);
                     break;
                 default:
                     throw new IllegalArgumentException("Provided location strategy type is not supported and never will be!");
