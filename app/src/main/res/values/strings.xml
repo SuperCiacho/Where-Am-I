@@ -1,8 +1,6 @@
 <resources>
     <string name="app_name">Where Am I?</string>
     <string name="title_location_strategy_detail">Metoda lokalizacji</string>
-    <string name="read_qr_code">Read QR Code</string>
-    <string name="title_activity_nfc">NfcActivity</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -10,4 +8,10 @@
     <string name="explanation">Zbliż telefon do znacznika NFC</string>
 
     <string name="scan_qr_code">Zeskanuj kod QR</string>
+    <string name="title_activity_gps">GPS</string>
+    <string name="title_activity_wifi">WiFI</string>
+    <string name="title_activity_nfc">NFC</string>
+    <string name="title_activity_qr_code">QR Code</string>
+    <string name="map">mapa</string>
+    <string name="stats">Statystyki</string>
 </resources>

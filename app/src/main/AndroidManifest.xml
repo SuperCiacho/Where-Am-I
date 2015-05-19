@@ -18,7 +18,6 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"/>
 
     <uses-feature
         android:name="android.hardware.Camera2"
@@ -60,6 +59,18 @@
             android:value="AIzaSyAGIZVHxGmY74b_1QSmq5GI_tttYt2Iwt8" />
         <!-- [END] Google Map Api v2 -->
 
+        <activity
+            android:name=".activities.GpsActivity"
+            android:label="@string/title_activity_gps" >
+        </activity>
+        <activity
+            android:name=".activities.WifiActivity"
+            android:label="@string/title_activity_wifi" >
+        </activity>
+        <activity
+            android:name=".activities.QrCodeActivity"
+            android:label="@string/title_activity_qr_code" >
+        </activity>
     </application>
 
 </manifest>

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 
+import master.pwr.whereami.enums.LocationStrategyType;
 import master.pwr.whereami.fragments.MethodControllerFragment;
 import master.pwr.whereami.fragments.MainFragment;
 import master.pwr.whereami.R;
@@ -27,13 +28,6 @@ import master.pwr.whereami.R;
  */
 public class MainActivity extends Activity implements MainFragment.Callbacks
 {
-
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
-    private boolean mTwoPane;
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -42,20 +36,10 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
 
         if (findViewById(R.id.fragment_container) != null)
         {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-large and
-            // res/values-sw600dp). If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
             ((MainFragment) getFragmentManager()
                     .findFragmentById(R.id.locationstartegy_list))
                     .setActivateOnItemClick(true);
         }
-
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
     /**
@@ -65,27 +49,31 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
     @Override
     public void onItemSelected(int id)
     {
-        if (mTwoPane)
+        Class cls = MethodControllerActivity.class;
+        switch ( LocationStrategyType.getByValue(id))
         {
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
-            Bundle arguments = new Bundle();
-            arguments.putInt(MethodControllerFragment.ARG_ITEM_ID, id);
-            MethodControllerFragment fragment = new MethodControllerFragment();
-            fragment.setArguments(arguments);
-            getFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, fragment)
-                                .commit();
+            case GPS:
+                cls = GpsActivity.class;
+                break;
+            case GSM:
+                cls = QrCodeActivity.class;
+                break;
+            case NFC:
+                cls = NfcActivity.class;
+                break;
+            case QR_CODE:
+                cls = QrCodeActivity.class;
+                break;
+            case WIFI:
+                cls = WifiActivity.class;
+                break;
+            case DEAD_RECKONING:
+                cls = DeadReckoningActivity.class;
+                break;
+        }
 
-        }
-        else
-        {
-            // In single-pane mode, simply start the detail activity
-            // for the selected item ID.
-            Intent detailIntent = new Intent(this, MethodControllerActivity.class);
-            detailIntent.putExtra(MethodControllerFragment.ARG_ITEM_ID, id);
-            startActivity(detailIntent);
-        }
+        Intent detailIntent = new Intent(this, cls);
+        detailIntent.putExtra(MethodControllerFragment.ARG_ITEM_ID, id);
+        startActivity(detailIntent);
     }
 }

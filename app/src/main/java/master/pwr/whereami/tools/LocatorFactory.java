@@ -1,6 +1,5 @@
 package master.pwr.whereami.tools;
 
-import android.app.Activity;
 import android.content.Context;
 
 import java.util.EnumMap;
@@ -11,7 +10,6 @@ import master.pwr.whereami.models.locators.DeadReckoningLocator;
 import master.pwr.whereami.models.locators.GPSLocator;
 import master.pwr.whereami.models.locators.GSMLocator;
 import master.pwr.whereami.models.locators.NFCLocator;
-import master.pwr.whereami.models.locators.QRCodeLocator;
 import master.pwr.whereami.models.locators.WiFiLocator;
 
 /**
@@ -47,7 +45,7 @@ public final class LocatorFactory
                     ls = new NFCLocator(context);
                     break;
                 case QR_CODE:
-                    ls = new QRCodeLocator(context);
+                   // ls = new QRCodeLocator(context);
                     break;
                 case WIFI:
                     ls = new WiFiLocator(context);

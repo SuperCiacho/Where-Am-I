@@ -2,11 +2,13 @@ package master.pwr.whereami.models;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
+
 /**
  * "Where Am I?"
  * Created by Bartosz on 2015-05-18.
  */
-public class Stats
+public class Stats implements Serializable
 {
     private int batteryLevel;
     private int batteryVoltage;
