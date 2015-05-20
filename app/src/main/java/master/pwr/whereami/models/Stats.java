@@ -14,9 +14,8 @@ public class Stats implements Serializable
     private int batteryVoltage;
     private long executionTime;
     private LatLng position;
-    private String providerName;
     private String methodName;
-
+    private float accuracy;
 
     public int getBatteryLevel()
     {
@@ -58,16 +57,6 @@ public class Stats implements Serializable
         return position;
     }
 
-    public void setProviderName(String providerName)
-    {
-        this.providerName = providerName;
-    }
-
-    public String getProviderName()
-    {
-        return providerName;
-    }
-
     public String getMethodName()
     {
         return methodName;
@@ -76,5 +65,15 @@ public class Stats implements Serializable
     public void setMethodName(String methodName)
     {
         this.methodName = methodName;
+    }
+
+    public float getAccuracy()
+    {
+        return accuracy;
+    }
+
+    public void setAccuracy(float accuracy)
+    {
+        this.accuracy = accuracy;
     }
 }

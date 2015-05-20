@@ -12,7 +12,7 @@ import master.pwr.whereami.R;
 
 public class QRReaderFragment extends Fragment
 {
-    public static final String TAG = "QrCode";
+    public static final String TAG = QRReaderFragment.class.getName();
     private ScannerView scanner;
     private ScannerView.ScannerViewEventListener callback;
 

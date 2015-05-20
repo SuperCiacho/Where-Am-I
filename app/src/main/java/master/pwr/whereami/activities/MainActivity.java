@@ -5,27 +5,9 @@ import android.os.Bundle;
 import android.app.Activity;
 
 import master.pwr.whereami.enums.LocationStrategyType;
-import master.pwr.whereami.fragments.MethodControllerFragment;
 import master.pwr.whereami.fragments.MainFragment;
 import master.pwr.whereami.R;
 
-
-/**
- * An activity representing a list of LocationStartegies. This activity
- * has different presentations for handset and tablet-size devices. On
- * handsets, the activity presents a list of items, which when touched,
- * lead to a {@link MethodControllerActivity} representing
- * item details. On tablets, the activity presents the list of items and
- * item details side-by-side using two vertical panes.
- * <p/>
- * The activity makes heavy use of fragments. The list of items is a
- * {@link MainFragment} and the item details
- * (if present) is a {@link MethodControllerFragment}.
- * <p/>
- * This activity also implements the required
- * {@link MainFragment.Callbacks} interface
- * to listen for item selections.
- */
 public class MainActivity extends Activity implements MainFragment.Callbacks
 {
     @Override
@@ -49,14 +31,14 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
     @Override
     public void onItemSelected(int id)
     {
-        Class cls = MethodControllerActivity.class;
+        Class cls;
         switch ( LocationStrategyType.getByValue(id))
         {
             case GPS:
                 cls = GpsActivity.class;
                 break;
             case GSM:
-                cls = QrCodeActivity.class;
+                cls = GsmActivity.class;
                 break;
             case NFC:
                 cls = NfcActivity.class;
@@ -70,10 +52,12 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
             case DEAD_RECKONING:
                 cls = DeadReckoningActivity.class;
                 break;
+            default:
+                throw new IllegalArgumentException("Provided location strategy type is not supported and never will be!");
         }
 
         Intent detailIntent = new Intent(this, cls);
-        detailIntent.putExtra(MethodControllerFragment.ARG_ITEM_ID, id);
+        detailIntent.putExtra("id", id);
         startActivity(detailIntent);
     }
 }

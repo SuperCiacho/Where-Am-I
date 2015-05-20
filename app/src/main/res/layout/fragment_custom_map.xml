@@ -5,14 +5,19 @@
                 android:orientation="vertical"
                 tools:context="master.pwr.whereami.fragments.CustomMapFragment">
 
+    <TextView
+        android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:textSize="16sp"
+        android:background="#e5e5e5"
+        />
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="2dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginStart="4dp"
         android:layout_marginTop="2dp"
         android:text="@string/get_location"
         />
@@ -23,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/button"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/status"
         tools:context="com.google.android.gms.maps.MapFragment"/>
 
 </RelativeLayout>

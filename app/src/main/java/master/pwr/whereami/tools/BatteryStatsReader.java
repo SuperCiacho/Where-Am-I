@@ -26,9 +26,6 @@ public class BatteryStatsReader extends BroadcastReceiver
 
     public void fetchBatteryStats(Context context)
     {
-        //context.registerReceiver(this, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-
-
         Intent batteryIntent = context.getApplicationContext().registerReceiver(null,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
@@ -39,8 +36,6 @@ public class BatteryStatsReader extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        // context.unregisterReceiver(this);
-
         int rawLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         if (rawLevel >= 0 && scale > 0) {

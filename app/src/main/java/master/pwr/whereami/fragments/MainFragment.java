@@ -10,15 +10,6 @@ import android.widget.ListView;
 import master.pwr.whereami.enums.LocationStrategyType;
 import master.pwr.whereami.adapters.LocationStrategiesAdapter;
 
-/**
- * A list fragment representing a list of LocationStartegies. This fragment
- * also supports tablet devices by allowing list items to be given an
- * 'activated' state upon selection. This helps indicate which item is
- * currently being viewed in a {@link MethodControllerFragment}.
- * <p/>
- * Activities containing this fragment MUST implement the {@link Callbacks}
- * interface.
- */
 public class MainFragment extends ListFragment
 {
     /**
@@ -70,7 +61,7 @@ public class MainFragment extends ListFragment
     {
         super.onViewCreated(view, savedInstanceState);
 
-        // Restore the previously serialized activated item position.
+        // Restore the previously serialized activated item DEFAULT_POSITION.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION))
         {

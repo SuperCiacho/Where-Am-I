@@ -1,43 +1,144 @@
 package master.pwr.whereami.activities;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
+import android.location.GpsStatus;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.provider.Settings;
 import android.view.View;
+import android.widget.Toast;
 
-import master.pwr.whereami.R;
+import java.util.concurrent.TimeUnit;
 
-public class GpsActivity extends BaseActivity
+import master.pwr.whereami.activities.base.BaseActivity;
+import master.pwr.whereami.models.MapUpdate;
+import master.pwr.whereami.tools.ServiceHelper;
+
+public class GpsActivity extends BaseActivity implements GpsStatus.Listener
 {
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
+    public void onCreate(Bundle savedInstanceState)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_gps, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
-        {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        super.onCreate(savedInstanceState);
+        providerName = LocationManager.GPS_PROVIDER;
+        locationProvider = locationManager.getProvider(providerName);
     }
 
     @Override
     public void onClick(View v)
     {
+        if (isWorking)
+        {
+            stopLocation();
+        }
+        else
+        {
+            if (prepare())
+            {
+                startLocation();
+            }
+        }
 
+        setViewText(v, isWorking);
     }
+
+    @Override
+    protected void startLocation()
+    {
+        dumpStats(true);
+        measureTime(true);
+
+        location = locationManager.getLastKnownLocation(providerName);
+
+        locationManager.addGpsStatusListener(this);
+        locationManager.requestLocationUpdates(
+                providerName,
+                TimeUnit.SECONDS.toMillis(1),
+                MIN_DISTANCE,
+                locationListener
+        );
+
+        isWorking = true;
+    }
+
+    @Override
+    protected void stopLocation()
+    {
+        measureTime(false);
+        locationManager.removeUpdates(locationListener);
+        dumpStats(false);
+        isWorking = false;
+    }
+
+    @Override
+    protected boolean prepare()
+    {
+        boolean result = true;
+        attemptCounter = 0;
+
+        if (!locationManager.isProviderEnabled(providerName))
+        {
+            result = false;
+            Toast.makeText(this, "Zmień tryb na \"Tylko GPS\".", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+        }
+
+        ServiceHelper.getInstance().setWifiEnabled(false);
+
+
+        return result;
+    }
+
+    public void onGpsStatusChanged(int event)
+    {
+        switch (event)
+        {
+            case GpsStatus.GPS_EVENT_FIRST_FIX:
+                updateMap(location == null ? MapUpdate.Default() : new MapUpdate(location));
+                break;
+            case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
+                break;
+            case GpsStatus.GPS_EVENT_STARTED:
+                Toast.makeText(this, "Rozpoczęto określanie pozycji", Toast.LENGTH_SHORT).show();
+                updateMap(MapUpdate.Default());
+                break;
+            case GpsStatus.GPS_EVENT_STOPPED:
+                Toast.makeText(this, "Zakończono określanie pozycji", Toast.LENGTH_SHORT).show();
+                updateMap(new MapUpdate(location));
+                break;
+        }
+    }
+
+    private LocationListener locationListener = new LocationListener()
+    {
+        @Override
+        public void onLocationChanged(Location location)
+        {
+            GpsActivity.this.location = location;
+            dumpStats(false);
+            updateMap(new MapUpdate(location));
+
+            isLocationSufficient(location);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras)
+        {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider)
+        {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider)
+        {
+
+        }
+    };
 }

@@ -2,6 +2,8 @@ package master.pwr.whereami.tools;
 
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
 import android.provider.Settings;
@@ -66,7 +68,7 @@ public class ServiceHelper
 
     public void setWifiEnabled(boolean toggle)
     {
-        if (!isWifiEnabled())
+        if (isWifiEnabled() != toggle)
         {
             getWifiManager().setWifiEnabled(toggle);
         }
@@ -94,15 +96,41 @@ public class ServiceHelper
 
     public void setMobileDataEnabled(boolean mobileData)
     {
-        if(ServiceHelper.getInstance().getMobileDataEnabled())
-        {
-            Toast.makeText(
-                    context,
-                    String.format("%s dane mobilne.", mobileData ? "Włącz" : "Wyłącz"),
-                    Toast.LENGTH_SHORT).show();
-            context.startActivity(new Intent(Settings.ACTION_APN_SETTINGS));
-        }
+        Toast.makeText(
+                context,
+                String.format("%s dane mobilne.", mobileData ? "Włącz" : "Wyłącz"),
+                Toast.LENGTH_SHORT).show();
+
+        /*
+        Intent mobileDataIntent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+        mobileDataIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(mobileDataIntent);
+        */
     }
+
+    /**
+     * Sensor manager
+     */
+    private SensorManager getSensorManager()
+    {
+        if (!services.containsKey(Context.SENSOR_SERVICE))
+        {
+            services.put(Context.SENSOR_SERVICE, context.getSystemService(Context.SENSOR_SERVICE));
+        }
+
+        return (SensorManager) services.get(Context.SENSOR_SERVICE);
+    }
+
+    public boolean iSensorAvailable(int sensorType)
+    {
+        return getSensorManager().getDefaultSensor(sensorType) != null;
+    }
+
+    public Sensor getSensor(int sensorType)
+    {
+        return getSensorManager().getDefaultSensor(sensorType);
+    }
+
 }
 
 
