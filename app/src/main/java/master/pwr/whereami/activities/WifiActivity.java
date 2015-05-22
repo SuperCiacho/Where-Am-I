@@ -111,9 +111,6 @@ public class WifiActivity extends BaseActivity implements WifiScanner.Listener
     @Override
     protected void startLocation()
     {
-        dumpStats(true);
-        measureTime(true);
-
         WifiScanner.addListener(this, this);
         location = locationManager.getLastKnownLocation(providerName);
         locationManager.requestLocationUpdates(
@@ -124,6 +121,9 @@ public class WifiActivity extends BaseActivity implements WifiScanner.Listener
         );
 
         isWorking = true;
+
+        dumpStats(true);
+        measureTime(true);
     }
 
     @Override

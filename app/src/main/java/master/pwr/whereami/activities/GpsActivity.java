@@ -78,9 +78,6 @@ public class GpsActivity extends BaseActivity implements GpsStatus.Listener
     @Override
     protected void startLocation()
     {
-        dumpStats(true);
-        measureTime(true);
-
         location = locationManager.getLastKnownLocation(providerName);
 
         locationManager.addGpsStatusListener(this);
@@ -92,6 +89,9 @@ public class GpsActivity extends BaseActivity implements GpsStatus.Listener
         );
 
         isWorking = true;
+
+        dumpStats(true);
+        measureTime(true);
     }
 
     @Override

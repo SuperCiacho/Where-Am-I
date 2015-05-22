@@ -134,7 +134,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         stats.setPosition(position);
         stats.setMethodName(getName());
         stats.setExecutionTime(System.currentTimeMillis() - executionTime);
-        stats.setAccuracy(location.getAccuracy());
+        stats.setAccuracy(location != null ? location.getAccuracy() : 10000.0f);
         getBatteryStats(stats);
         return stats;
     }
@@ -148,14 +148,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
     public void measureTime(boolean start)
     {
-        if (start)
-        {
-            executionTime = -System.currentTimeMillis();
-        }
-        else
-        {
-            executionTime = 0;
-        }
+        executionTime = start ? -System.currentTimeMillis() : 0;
     }
 
     public void dumpStats(boolean beforeLocation)

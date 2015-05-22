@@ -96,13 +96,14 @@ public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallba
     protected void startLocation()
     {
         Toast.makeText(this, getString(R.string.explanation), Toast.LENGTH_SHORT).show();
-        dumpStats(true);
-        measureTime(true);
         mNfcAdapter.enableReaderMode(
                 this,
                 this,
                 0,
                 null);
+
+        dumpStats(true);
+        measureTime(true);
     }
 
     @Override

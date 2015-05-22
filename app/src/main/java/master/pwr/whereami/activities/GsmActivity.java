@@ -114,9 +114,6 @@ public class GsmActivity extends BaseActivity
     @Override
     protected void startLocation()
     {
-        dumpStats(true);
-        measureTime(true);
-
         location = locationManager.getLastKnownLocation(providerName);
         locationManager.requestLocationUpdates(
                 providerName,
@@ -126,6 +123,9 @@ public class GsmActivity extends BaseActivity
         );
 
         isWorking = true;
+
+        dumpStats(true);
+        measureTime(true);
     }
 
     @Override
