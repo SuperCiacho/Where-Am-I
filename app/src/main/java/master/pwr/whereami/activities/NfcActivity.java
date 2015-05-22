@@ -6,6 +6,7 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.nfc.tech.MifareClassic;
 import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -26,6 +27,7 @@ import master.pwr.whereami.activities.base.BaseActivity;
 public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallback
 {
     private NfcAdapter mNfcAdapter;
+    private View locateButton;
 
 
     @Override
@@ -73,6 +75,8 @@ public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallba
         if (isWorking)
         {
             stopLocation();
+            locateButton = null;
+            isWorking = false;
         }
         else
         {
@@ -80,9 +84,12 @@ public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallba
             {
 
                 startLocation();
+                locateButton = v;
                 isWorking = true;
             }
         }
+
+        setViewText(v, isWorking);
     }
 
     @Override
@@ -94,7 +101,7 @@ public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallba
         mNfcAdapter.enableReaderMode(
                 this,
                 this,
-                NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+                0,
                 null);
     }
 
@@ -102,11 +109,14 @@ public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallba
     protected void stopLocation()
     {
         mNfcAdapter.disableReaderMode(this);
+        dumpStats(false);
+        measureTime(false);
     }
 
     @Override
     public void onTagDiscovered(Tag tag)
     {
+        MifareClassic mifare = MifareClassic.get(tag);
         Ndef ndef = Ndef.get(tag);
         if (ndef == null)
         {
@@ -134,7 +144,7 @@ public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallba
             }
         }
 
-        mNfcAdapter.disableReaderMode(this);
+        onClick(locateButton);
     }
 
     private String readText(NdefRecord record) throws UnsupportedEncodingException

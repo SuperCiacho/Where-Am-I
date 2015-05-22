@@ -37,7 +37,7 @@ public class StatsAdapter extends BaseAdapter
                     data.add(String.format("Pozycja: %s", s.getPosition()));
                     data.add(String.format("Dokładność: %s [m]", s.getPosition()));
                     data.add(String.format("Czas operacji: %s [ms]" , s.getExecutionTime()));
-                    data.add(String.format("Poziom baterii: %s [%]", s.getBatteryLevel()));
+                    data.add(String.format("Poziom baterii: %s [%%]", s.getBatteryLevel()));
                     data.add(String.format("Napięcie baterii:%s [mV]", s.getBatteryVoltage()));
                 }
                 return null;
@@ -94,7 +94,14 @@ public class StatsAdapter extends BaseAdapter
             vh = (ViewHolder) convertView.getTag();
         }
 
-        vh.tv.setText(data.get(position));
+        if (getItemViewType(position) == R.layout.list_item_header)
+        {
+            vh.tv.setText("Pomiar " + ((position / 7) + 1));
+        }
+        else
+        {
+            vh.tv.setText(data.get(position));
+        }
 
         return convertView;
     }

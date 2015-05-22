@@ -1,22 +1,14 @@
 package master.pwr.whereami.tools;
 
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.net.ConnectivityManager;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Hashtable;
-import java.util.Map;
-
-import master.pwr.whereami.WhereAmI;
 
 /**
  * "Where Am I?"
@@ -71,8 +63,18 @@ public class ServiceHelper
         if (isWifiEnabled() != toggle)
         {
             getWifiManager().setWifiEnabled(toggle);
+            Toast.makeText(
+                    context,
+                    String.format("W%słączono moduł WiFi.", toggle ? "" : "y"),
+                    Toast.LENGTH_SHORT).show();
         }
     }
+
+    public int calculateDistance(ScanResult scanResult)
+    {
+        return WifiManager.calculateSignalLevel(scanResult.level, 1);
+    }
+
 
     /**
      * Mobile Data (Connectivity Manager)
@@ -121,7 +123,7 @@ public class ServiceHelper
         return (SensorManager) services.get(Context.SENSOR_SERVICE);
     }
 
-    public boolean iSensorAvailable(int sensorType)
+    public boolean isSensorAvailable(int sensorType)
     {
         return getSensorManager().getDefaultSensor(sensorType) != null;
     }

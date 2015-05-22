@@ -44,8 +44,8 @@ public class QrCodeActivity extends BaseActivity implements ScannerView.ScannerV
         ft.replace(R.id.inner_fragment_container, qrCode, QRReaderFragment.TAG);
         ft.commit();
 
-        dumpStats(true);
         measureTime(true);
+        dumpStats(true);
     }
 
     private void stopLocation(String data)
@@ -60,8 +60,8 @@ public class QrCodeActivity extends BaseActivity implements ScannerView.ScannerV
     @Override
     protected void stopLocation()
     {
-        measureTime(false);
         dumpStats(false);
+        measureTime(false);
     }
 
     @Override

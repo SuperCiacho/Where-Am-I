@@ -9,6 +9,8 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.concurrent.TimeUnit;
 
 import master.pwr.whereami.activities.base.BaseActivity;
@@ -21,6 +23,39 @@ import master.pwr.whereami.tools.ServiceHelper;
  */
 public class GsmActivity extends BaseActivity
 {
+    private LocationListener locationListener = new LocationListener()
+    {
+        @Override
+        public void onLocationChanged(Location location)
+        {
+            GsmActivity.this.location = location;
+            position = new LatLng(location.getLatitude(), location.getLongitude());
+
+            dumpStats(false);
+            updateMap(new MapUpdate(location));
+
+            isLocationSufficient(location);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras)
+        {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider)
+        {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider)
+        {
+
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -96,40 +131,9 @@ public class GsmActivity extends BaseActivity
     @Override
     protected void stopLocation()
     {
-        measureTime(false);
         locationManager.removeUpdates(locationListener);
         dumpStats(false);
+        measureTime(false);
         isWorking = false;
     }
-
-    private LocationListener locationListener = new LocationListener()
-    {
-        @Override
-        public void onLocationChanged(Location location)
-        {
-            GsmActivity.this.location = location;
-            dumpStats(false);
-            updateMap(new MapUpdate(location));
-
-            isLocationSufficient(location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider)
-        {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider)
-        {
-
-        }
-    };
 }

@@ -1,8 +1,8 @@
 package master.pwr.whereami.fragments;
 
+import android.app.Fragment;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
@@ -19,6 +19,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -36,18 +38,19 @@ public class CustomMapFragment extends Fragment
 
     private LatLng DEFAULT_POSITION;
     private GoogleMap map;
-    private Marker marker;
+    private Marker deviceMarker;
+    private Circle accuracyMarker;
     private TextView statusView;
     private Button locateButton;
-
-    public static CustomMapFragment newInstance()
-    {
-        return new CustomMapFragment();
-    }
 
     public CustomMapFragment()
     {
         // Required empty public constructor
+    }
+
+    public static CustomMapFragment newInstance()
+    {
+        return new CustomMapFragment();
     }
 
     @Override
@@ -58,13 +61,13 @@ public class CustomMapFragment extends Fragment
         View v = inflater.inflate(R.layout.fragment_custom_map, container, false);
 
         String[] positionData;
-        if(getArguments() != null)
+        if (getArguments() != null)
         {
             positionData = getArguments().getString("data").split(":");
         }
         else
         {
-            positionData = new String[]{"51.5009489","18.006975"};
+            positionData = new String[]{"51.5009489", "18.006975"};
         }
 
         DEFAULT_POSITION = new LatLng(
@@ -76,7 +79,7 @@ public class CustomMapFragment extends Fragment
 
         locateButton.setOnClickListener(callback);
 
-        if(map == null)
+        if (map == null)
         {
             MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
             mapFragment.getMapAsync(new OnMapReadyCallback()
@@ -85,9 +88,14 @@ public class CustomMapFragment extends Fragment
                 public void onMapReady(GoogleMap googleMap)
                 {
                     map = googleMap;
-                    MarkerOptions m = new MarkerOptions();
-                    m.position(DEFAULT_POSITION);
-                    marker = map.addMarker(m);
+                    deviceMarker = map.addMarker(new MarkerOptions().position(DEFAULT_POSITION));
+                    accuracyMarker = map.addCircle(new CircleOptions()
+                                    .center(DEFAULT_POSITION)
+                                    .radius(10000.0f)
+                                    .strokeWidth(5.0f)
+                                    .fillColor(0x302072FF)
+                                    .strokeColor(0x2072FF)
+                    );
                 }
             });
         }
@@ -103,15 +111,32 @@ public class CustomMapFragment extends Fragment
     public void updateMap(MapUpdate update)
     {
         int zoom = (int) update.getAccuracy();
-        if(zoom < 10) zoom = DEFAULT_ZOOM;
-        else if (zoom > 10) zoom = MAX_ZOOM;
+        if (zoom < 10000)
+        {
+            zoom = MAX_ZOOM;
+        }
+        else
+        {
+            zoom = DEFAULT_ZOOM;
+        }
 
-        statusView.setText("Dokładność: " + update.getAccuracy());
-        animateMarker(marker, update.getPosition(), false);
+        setStatusText(update);
+        animateMarker(deviceMarker, accuracyMarker, update.getPosition(), update.getAccuracy(), false);
         moveCameraToPosition(map, update.getPosition(), zoom);
     }
 
-    private void moveCameraToPosition(GoogleMap googleMap, LatLng position,int zoom)
+    private void setStatusText(MapUpdate update)
+    {
+        float accuracy = update.getAccuracy();
+        float accuracyInKiloMeters = accuracy / 1000;
+        boolean isGreaterThenKilometer = accuracyInKiloMeters < 1.00000f;
+
+        statusView.setText(String.format("Dokładność: %.0f [%s]",
+                isGreaterThenKilometer ? accuracy : accuracyInKiloMeters,
+                isGreaterThenKilometer ? "m" : "km"));
+    }
+
+    private void moveCameraToPosition(GoogleMap googleMap, LatLng position, int zoom)
     {
         CameraPosition cameraPosition = new CameraPosition
                 .Builder()
@@ -121,8 +146,12 @@ public class CustomMapFragment extends Fragment
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    public void animateMarker(final Marker marker, final LatLng toPosition,
-                              final boolean hideMarker) {
+    public void animateMarker(final Marker marker,
+                              final Circle circle,
+                              final LatLng toPosition,
+                              final float accuracy,
+                              final boolean hideMarker)
+    {
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
         Projection proj = map.getProjection();
@@ -131,6 +160,8 @@ public class CustomMapFragment extends Fragment
         final long duration = 500;
 
         final Interpolator interpolator = new LinearInterpolator();
+
+        circle.setRadius(accuracy);
 
         handler.post(new Runnable()
         {
@@ -144,7 +175,9 @@ public class CustomMapFragment extends Fragment
                         * startLatLng.longitude;
                 double lat = t * toPosition.latitude + (1 - t)
                         * startLatLng.latitude;
-                marker.setPosition(new LatLng(lat, lng));
+                LatLng pos = new LatLng(lat, lng);
+                marker.setPosition(pos);
+                circle.setCenter(pos);
 
                 if (t < 1.0)
                 {

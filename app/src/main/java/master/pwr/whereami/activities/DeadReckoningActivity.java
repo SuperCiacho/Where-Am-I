@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class DeadReckoningActivity extends BaseActivity
     {
         super.onCreate(savedInstanceState);
         providerName = LocationManager.PASSIVE_PROVIDER;
+        sensors = new SparseArray<>(6);
 
         sensorNames = new ArrayList<>(6);
         sensorNames.add(Sensor.TYPE_ACCELEROMETER);
@@ -52,6 +54,10 @@ public class DeadReckoningActivity extends BaseActivity
             {
                 startLocation();
             }
+            else
+            {
+                Toast.makeText(this, "Brak sensorów umożliwiających śledzenie ruchu", Toast.LENGTH_SHORT).show();
+            }
         }
 
         setViewText(v, isWorking);
@@ -60,9 +66,9 @@ public class DeadReckoningActivity extends BaseActivity
     @Override
     protected boolean prepare()
     {
-        if (!locationManager.isProviderEnabled(providerName))
+        if (locationManager.getProviders(true).size() > 0)
         {
-            messageBuilder.append("Zmień tryb określania pozycji na \"Tryb oszczędny\".\n");
+            Toast.makeText(this, "Wyłącz usługi lokalizowania urządzenia", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             return false;
         }
@@ -70,7 +76,7 @@ public class DeadReckoningActivity extends BaseActivity
         ServiceHelper sh = ServiceHelper.getInstance();
         for (int sensorId : sensorNames)
         {
-            if (sh.iSensorAvailable(sensorId))
+            if (sh.isSensorAvailable(sensorId))
             {
                 sensors.append(sensorId, sh.getSensor(sensorId));
             }

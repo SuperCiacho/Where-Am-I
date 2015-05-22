@@ -18,6 +18,37 @@ import master.pwr.whereami.tools.ServiceHelper;
 
 public class GpsActivity extends BaseActivity implements GpsStatus.Listener
 {
+    private LocationListener locationListener = new LocationListener()
+    {
+        @Override
+        public void onLocationChanged(Location location)
+        {
+            GpsActivity.this.location = location;
+            dumpStats(false);
+            updateMap(new MapUpdate(location));
+
+            isLocationSufficient(location);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras)
+        {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider)
+        {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider)
+        {
+
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -66,9 +97,9 @@ public class GpsActivity extends BaseActivity implements GpsStatus.Listener
     @Override
     protected void stopLocation()
     {
-        measureTime(false);
         locationManager.removeUpdates(locationListener);
         dumpStats(false);
+        measureTime(false);
         isWorking = false;
     }
 
@@ -110,35 +141,4 @@ public class GpsActivity extends BaseActivity implements GpsStatus.Listener
                 break;
         }
     }
-
-    private LocationListener locationListener = new LocationListener()
-    {
-        @Override
-        public void onLocationChanged(Location location)
-        {
-            GpsActivity.this.location = location;
-            dumpStats(false);
-            updateMap(new MapUpdate(location));
-
-            isLocationSufficient(location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider)
-        {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider)
-        {
-
-        }
-    };
 }

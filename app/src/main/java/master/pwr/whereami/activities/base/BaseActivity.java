@@ -50,6 +50,41 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
     protected boolean isWorking;
 
     private CustomMapFragment mapFragment;
+    private View.OnClickListener onMapButtonClickListener = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+            showMapFragment(null);
+        }
+    };
+    private View.OnClickListener onStatButtonClickListener = new View.OnClickListener()
+    {
+        @Override
+        public void onClick(View v)
+        {
+
+            if (statsList.isEmpty())
+            {
+                Toast.makeText(getApplicationContext(), "Brak statystyk", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            FragmentManager fm = getFragmentManager();
+            Fragment statsFragment = getFragmentManager().findFragmentByTag(StatsFragment.TAG);
+
+            if (statsFragment == null)
+            {
+                statsFragment = StatsFragment.newInstance(statsList);
+            }
+
+            if (statsFragment.isVisible()) return;
+
+            fm.beginTransaction()
+              .replace(R.id.inner_fragment_container, statsFragment, CustomMapFragment.TAG)
+              .commit();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -98,7 +133,8 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         Stats stats = new Stats();
         stats.setPosition(position);
         stats.setMethodName(getName());
-        stats.setExecutionTime(executionTime);
+        stats.setExecutionTime(System.currentTimeMillis() - executionTime);
+        stats.setAccuracy(location.getAccuracy());
         getBatteryStats(stats);
         return stats;
     }
@@ -118,7 +154,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         }
         else
         {
-            executionTime += System.currentTimeMillis();
+            executionTime = 0;
         }
     }
 
@@ -138,71 +174,32 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
             mapFragment = (CustomMapFragment) getFragmentManager().findFragmentByTag(CustomMapFragment.TAG);
         }
 
+        if (mapFragment == null)
+        {
+            mapFragment = CustomMapFragment.newInstance();
+            mapFragment.setOnLocateButtonListener(this);
+        }
+
         return mapFragment;
     }
 
     protected void showMapFragment(Bundle args)
     {
-        FragmentManager fm = getFragmentManager();
-
-        Fragment mapFragment = getFragmentManager().findFragmentByTag(CustomMapFragment.TAG);
-        if (mapFragment == null)
-        {
-            mapFragment = CustomMapFragment.newInstance();
-            ((CustomMapFragment) mapFragment).setOnLocateButtonListener(this);
-        }
-
-        if (mapFragment.isVisible()) return;
+        Fragment mf = getMapFragment();
+        if (mf.isVisible()) return;
 
         if (args != null)
         {
-            mapFragment.setArguments(args);
+            mf.setArguments(args);
         }
 
-        fm.beginTransaction()
-          .replace(R.id.inner_fragment_container, mapFragment, CustomMapFragment.TAG)
-          .commit();
+        getFragmentManager().beginTransaction()
+                            .replace(R.id.inner_fragment_container, mf, CustomMapFragment.TAG)
+                            .commit();
     }
 
     protected void updateMap(MapUpdate update)
     {
         getMapFragment().updateMap(update);
     }
-
-    private View.OnClickListener onMapButtonClickListener = new View.OnClickListener()
-    {
-        @Override
-        public void onClick(View v)
-        {
-            showMapFragment(null);
-        }
-    };
-
-    private View.OnClickListener onStatButtonClickListener = new View.OnClickListener()
-    {
-        @Override
-        public void onClick(View v)
-        {
-
-            if (statsList.isEmpty())
-            {
-                Toast.makeText(getApplicationContext(), "Brak statystyk", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            FragmentManager fm = getFragmentManager();
-            Fragment statsFragment = getFragmentManager().findFragmentByTag(StatsFragment.TAG);
-
-            if (statsFragment == null)
-            {
-                statsFragment = StatsFragment.newInstance(statsList);
-            }
-
-            if (statsFragment.isVisible()) return;
-
-            fm.beginTransaction()
-              .replace(R.id.inner_fragment_container, statsFragment, CustomMapFragment.TAG)
-              .commit();
-        }
-    };
 }
