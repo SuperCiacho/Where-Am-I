@@ -99,7 +99,9 @@ public class NfcActivity extends BaseActivity implements NfcAdapter.ReaderCallba
         mNfcAdapter.enableReaderMode(
                 this,
                 this,
-                0,
+                NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_NFC_B
+                        | NfcAdapter.FLAG_READER_NFC_F | NfcAdapter.FLAG_READER_NFC_V
+                        | NfcAdapter.FLAG_READER_NFC_BARCODE,
                 null);
 
         dumpStats(true);

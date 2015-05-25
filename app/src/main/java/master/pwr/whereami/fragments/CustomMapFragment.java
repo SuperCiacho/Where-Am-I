@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 
 import master.pwr.whereami.R;
 import master.pwr.whereami.models.MapUpdate;
@@ -33,9 +34,9 @@ public class CustomMapFragment extends Fragment
     public static final String TAG = CustomMapFragment.class.getName();
     private static final int DEFAULT_ZOOM = 5;
     private static final int MAX_ZOOM = 10;
-
+    Gson json = new Gson();
+    Bundle backup;
     private View.OnClickListener callback;
-
     private LatLng DEFAULT_POSITION;
     private GoogleMap map;
     private Marker deviceMarker;
@@ -79,28 +80,38 @@ public class CustomMapFragment extends Fragment
 
         locateButton.setOnClickListener(callback);
 
-        if (map == null)
+        MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(new OnMapReadyCallback()
         {
-            MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-            mapFragment.getMapAsync(new OnMapReadyCallback()
+            @Override
+            public void onMapReady(GoogleMap googleMap)
             {
-                @Override
-                public void onMapReady(GoogleMap googleMap)
+                map = googleMap;
+                if (backup == null)
                 {
-                    map = googleMap;
-                    deviceMarker = map.addMarker(new MarkerOptions().position(DEFAULT_POSITION));
-                    accuracyMarker = map.addCircle(new CircleOptions()
-                                    .center(DEFAULT_POSITION)
-                                    .radius(10000.0f)
-                                    .strokeWidth(5.0f)
-                                    .fillColor(0x302072FF)
-                                    .strokeColor(0x2072FF)
-                    );
+                    setupMap(DEFAULT_POSITION, 10000.0f, DEFAULT_ZOOM);
                 }
-            });
-        }
+                else
+                {
+                    restoreView();
+                }
+            }
+        });
 
         return v;
+    }
+
+    protected void setupMap(LatLng position, double radius, int zoom)
+    {
+        deviceMarker = map.addMarker(new MarkerOptions().position(position));
+        accuracyMarker = map.addCircle(new CircleOptions()
+                .center(position)
+                .radius(radius)
+                .strokeWidth(5.0f)
+                .fillColor(0x302072FF)
+                .strokeColor(0x2072FF));
+
+        moveCameraToPosition(map, position, zoom);
     }
 
     public void setOnLocateButtonListener(View.OnClickListener listener)
@@ -110,16 +121,7 @@ public class CustomMapFragment extends Fragment
 
     public void updateMap(MapUpdate update)
     {
-        int zoom = (int) update.getAccuracy();
-        if (zoom < 10000)
-        {
-            zoom = MAX_ZOOM;
-        }
-        else
-        {
-            zoom = DEFAULT_ZOOM;
-        }
-
+        int zoom = calculateZoom(update.getAccuracy());
         setStatusText(update);
         animateMarker(deviceMarker, accuracyMarker, update.getPosition(), update.getAccuracy(), false);
         moveCameraToPosition(map, update.getPosition(), zoom);
@@ -199,4 +201,120 @@ public class CustomMapFragment extends Fragment
         });
     }
 
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        saveState();
+    }
+
+    private void saveState()
+    {
+        backup = new Bundle();
+        backup.putString("locateBtnState", locateButton.getText().toString());
+        backup.putString("status", statusView.getText().toString());
+        if (deviceMarker != null)
+        {
+            backup.putString("pos", json.toJson(deviceMarker.getPosition()));
+            backup.putDouble("acc", accuracyMarker.getRadius());
+        }
+    }
+
+    private void restoreView()
+    {
+        if (backup == null) return;
+
+        locateButton.setText(backup.getString("locateBtnState"));
+        statusView.setText(backup.getString("status"));
+        if (backup.getString("pos") != null)
+        {
+            LatLng pos = json.fromJson(backup.getString("pos"), LatLng.class);
+            double acc = backup.getDouble("acc");
+            setupMap(pos, acc, calculateZoom(acc));
+        }
+    }
+
+    private int calculateZoom(double accuracy)
+    {
+        int zoom = 0;
+        if (accuracy < 1128.497220)
+        {
+            zoom = 20;
+        }
+        else if (accuracy < 2256.994440)
+        {
+            zoom = 19;
+        }
+        else if (accuracy < 4513.988880)
+        {
+            zoom = 18;
+        }
+        else if (accuracy < 9027.977761)
+        {
+            zoom = 17;
+        }
+        else if (accuracy < 18055.955520)
+        {
+            zoom = 16;
+        }
+        else if (accuracy < 36111.911040)
+        {
+            zoom = 15;
+        }
+        else if (accuracy < 72223.822090)
+        {
+            zoom = 14;
+        }
+        else if (accuracy < 144447.644200)
+        {
+            zoom = 13;
+        }
+        else if (accuracy < 288895.288400)
+        {
+            zoom = 12;
+        }
+        else if (accuracy < 577790.576700)
+        {
+            zoom = 11;
+        }
+        else if (accuracy < 1155581.153000)
+        {
+            zoom = 10;
+        }
+        else if (accuracy < 2311162.307000)
+        {
+            zoom = 9;
+        }
+        else if (accuracy < 4622324.614000)
+        {
+            zoom = 8;
+        }
+        else if (accuracy < 9244649.227000)
+        {
+            zoom = 7;
+        }
+        else if (accuracy < 18489298.450000)
+        {
+            zoom = 6;
+        }
+        else if (accuracy < 36978596.910000)
+        {
+            zoom = 5;
+        }
+        else if (accuracy < 73957193.820000)
+        {
+            zoom = 4;
+        }
+        else if (accuracy < 147914387.600000)
+        {
+            zoom = 3;
+        }
+        else if (accuracy < 295828775.300000)
+        {
+            zoom = 2;
+        }
+        else if (accuracy < 591657550.500000) zoom = 1;
+
+        return zoom;
+    }
 }
