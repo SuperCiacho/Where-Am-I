@@ -1,12 +1,12 @@
 package master.pwr.whereami.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.app.Activity;
 
+import master.pwr.whereami.R;
 import master.pwr.whereami.enums.LocationStrategyType;
 import master.pwr.whereami.fragments.MainFragment;
-import master.pwr.whereami.R;
 
 public class MainActivity extends Activity implements MainFragment.Callbacks
 {
@@ -15,13 +15,6 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_locationstartegy_list);
-
-        if (findViewById(R.id.fragment_container) != null)
-        {
-            ((MainFragment) getFragmentManager()
-                    .findFragmentById(R.id.locationstartegy_list))
-                    .setActivateOnItemClick(true);
-        }
     }
 
     /**
@@ -34,23 +27,17 @@ public class MainActivity extends Activity implements MainFragment.Callbacks
         Class cls;
         switch ( LocationStrategyType.getByValue(id))
         {
-            case GPS:
-                cls = GpsActivity.class;
+            case HIGH_ACCURACY:
+                cls = HighAccuracyActivity.class;
                 break;
-            case GSM:
-                cls = GsmActivity.class;
+            case NETWORK:
+                cls = NetworkLocationActivity.class;
                 break;
-            case NFC:
-                cls = NfcActivity.class;
+            case GPS_ONLY:
+                cls = GpsOnlyActivity.class;
                 break;
-            case QR_CODE:
-                cls = QrCodeActivity.class;
-                break;
-            case WIFI:
-                cls = WifiActivity.class;
-                break;
-            case DEAD_RECKONING:
-                cls = DeadReckoningActivity.class;
+            case FUSED_LOCATION:
+                cls = FusedLocationActivity.class;
                 break;
             default:
                 throw new IllegalArgumentException("Provided location strategy type is not supported and never will be!");

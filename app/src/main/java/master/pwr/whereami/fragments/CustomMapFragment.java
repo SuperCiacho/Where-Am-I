@@ -33,9 +33,9 @@ public class CustomMapFragment extends Fragment
 {
     public static final String TAG = CustomMapFragment.class.getName();
     private static final int DEFAULT_ZOOM = 5;
-    private static final int MAX_ZOOM = 10;
-    Gson json = new Gson();
-    Bundle backup;
+
+    private Gson json = new Gson();
+    private Bundle backup;
     private View.OnClickListener callback;
     private LatLng DEFAULT_POSITION;
     private GoogleMap map;
@@ -101,7 +101,7 @@ public class CustomMapFragment extends Fragment
         return v;
     }
 
-    protected void setupMap(LatLng position, double radius, int zoom)
+    private void setupMap(LatLng position, double radius, int zoom)
     {
         deviceMarker = map.addMarker(new MarkerOptions().position(position));
         accuracyMarker = map.addCircle(new CircleOptions()
@@ -123,7 +123,7 @@ public class CustomMapFragment extends Fragment
     {
         int zoom = calculateZoom(update.getAccuracy());
         setStatusText(update);
-        animateMarker(deviceMarker, accuracyMarker, update.getPosition(), update.getAccuracy(), false);
+        animateMarker(deviceMarker, accuracyMarker, update.getPosition(), update.getAccuracy());
         moveCameraToPosition(map, update.getPosition(), zoom);
     }
 
@@ -148,17 +148,16 @@ public class CustomMapFragment extends Fragment
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
-    public void animateMarker(final Marker marker,
-                              final Circle circle,
-                              final LatLng toPosition,
-                              final float accuracy,
-                              final boolean hideMarker)
+    private void animateMarker(final Marker marker,
+                               final Circle circle,
+                               final LatLng toPosition,
+                               final float accuracy)
     {
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
-        Projection proj = map.getProjection();
-        Point startPoint = proj.toScreenLocation(marker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        Projection projection = map.getProjection();
+        Point startPoint = projection.toScreenLocation(marker.getPosition());
+        final LatLng startLatLng = projection.fromScreenLocation(startPoint);
         final long duration = 500;
 
         final Interpolator interpolator = new LinearInterpolator();
@@ -185,17 +184,6 @@ public class CustomMapFragment extends Fragment
                 {
                     // Post again 16ms later.
                     handler.postDelayed(this, 16);
-                }
-                else
-                {
-                    if (hideMarker)
-                    {
-                        marker.setVisible(false);
-                    }
-                    else
-                    {
-                        marker.setVisible(true);
-                    }
                 }
             }
         });
@@ -315,6 +303,8 @@ public class CustomMapFragment extends Fragment
         }
         else if (accuracy < 591657550.500000) zoom = 1;
 
-        return zoom;
+
+        // W ramach tej aplikacji zoom większy niż 18 jest zbyt duży.
+        return zoom > 18 ? 18 : zoom;
     }
 }

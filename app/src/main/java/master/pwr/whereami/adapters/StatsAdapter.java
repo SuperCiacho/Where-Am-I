@@ -1,5 +1,6 @@
 package master.pwr.whereami.adapters;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,10 +8,13 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import master.pwr.whereami.R;
+import master.pwr.whereami.models.StatProperties;
 import master.pwr.whereami.models.Stats;
 
 /**
@@ -19,26 +23,63 @@ import master.pwr.whereami.models.Stats;
  */
 public class StatsAdapter extends BaseAdapter
 {
-    List<String> data;
+    private static final String HEADER = "header";
+    private final LayoutInflater layoutInflater;
+    private List<String> data;
+    private int fieldsNumber;
 
-    public StatsAdapter(final List<Stats> statistics)
+    public StatsAdapter(Context context, final List<Stats> statistics)
     {
-        data = new ArrayList<>(7 * statistics.size());
+        layoutInflater = LayoutInflater.from(context);
 
         new AsyncTask<Void, Void, Void>()
         {
             @Override
             protected Void doInBackground(Void... params)
             {
+                Field[] fields = Stats.class.getDeclaredFields();
+                fieldsNumber = fields.length;
+                data = new ArrayList<>(fieldsNumber * statistics.size());
+
+                String[] temp = new String[fieldsNumber];
                 for (Stats s : statistics)
                 {
-                    data.add("header");
+                    Arrays.fill(temp, null);
+
+                    for (Field f : fields)
+                    {
+                        boolean originalFlag = f.isAccessible();
+                        try
+                        {
+                            if (f.isAnnotationPresent(StatProperties.class))
+                            {
+                                StatProperties props = f.getAnnotation(StatProperties.class);
+                                f.setAccessible(true);
+                                temp[props.Order()] = String.format(props.StringFormat(), f.get(s));
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            e.printStackTrace();
+                        }
+                        finally
+                        {
+                            f.setAccessible(originalFlag);
+                        }
+                    }
+
+                    data.add(HEADER);
+                    data.addAll(Arrays.asList(temp));
+
+                    /*
                     data.add(String.format("Metoda: %s", s.getMethodName()));
+                    data.add(String.format("Dokładność: %s [m]", s.getAccuracy()));
                     data.add(String.format("Pozycja: %s", s.getPosition()));
-                    data.add(String.format("Dokładność: %s [m]", s.getPosition()));
+                    data.add(String.format("Próba: %s", s.getAttempt()));
                     data.add(String.format("Czas operacji: %s [ms]" , s.getExecutionTime()));
                     data.add(String.format("Poziom baterii: %s [%%]", s.getBatteryLevel()));
                     data.add(String.format("Napięcie baterii:%s [mV]", s.getBatteryVoltage()));
+                    */
                 }
                 return null;
             }
@@ -48,9 +89,7 @@ public class StatsAdapter extends BaseAdapter
     @Override
     public int getItemViewType(int position)
     {
-        return data.get(position).equals("header") ?
-                R.layout.list_item_header :
-                android.R.layout.activity_list_item;
+        return data.get(position).equals(HEADER) ? 0 : 1;
     }
 
     @Override
@@ -62,7 +101,7 @@ public class StatsAdapter extends BaseAdapter
     @Override
     public int getCount()
     {
-        return data.size();
+        return data == null ? 0 : data.size();
     }
 
     @Override
@@ -81,10 +120,11 @@ public class StatsAdapter extends BaseAdapter
     public View getView(int position, View convertView, ViewGroup parent)
     {
         ViewHolder vh;
+        boolean isHeader = getItemViewType(position) == 0;
         if(convertView == null)
         {
-            convertView = LayoutInflater.from(parent.getContext())
-                                        .inflate(getItemViewType(position), parent, false);
+            int layoutId = isHeader ? R.layout.list_item_header : android.R.layout.activity_list_item;
+            convertView = layoutInflater.inflate(layoutId, parent, false);
             vh = new ViewHolder();
             vh.tv = ((TextView) convertView.findViewById(android.R.id.text1));
             convertView.setTag(vh);
@@ -94,7 +134,7 @@ public class StatsAdapter extends BaseAdapter
             vh = (ViewHolder) convertView.getTag();
         }
 
-        if (getItemViewType(position) == R.layout.list_item_header)
+        if (isHeader)
         {
             vh.tv.setText("Pomiar " + ((position / 7) + 1));
         }

@@ -1,84 +1,33 @@
 package master.pwr.whereami.activities;
 
 import android.content.Intent;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.View;
 import android.widget.Toast;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.concurrent.TimeUnit;
 
 import master.pwr.whereami.activities.base.BaseActivity;
-import master.pwr.whereami.models.MapUpdate;
+import master.pwr.whereami.models.LMLocationListener;
 import master.pwr.whereami.tools.ServiceHelper;
 
 /**
  * "Where Am I?"
  * Created by Bartosz on 2015-05-19.
  */
-public class GsmActivity extends BaseActivity
+public class NetworkLocationActivity extends BaseActivity
 {
-    private LocationListener locationListener = new LocationListener()
-    {
-        @Override
-        public void onLocationChanged(Location location)
-        {
-            GsmActivity.this.location = location;
-            position = new LatLng(location.getLatitude(), location.getLongitude());
-
-            dumpStats(false);
-            updateMap(new MapUpdate(location));
-
-            isLocationSufficient(location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider)
-        {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider)
-        {
-
-        }
-    };
+    private LocationListener locationListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         providerName = LocationManager.NETWORK_PROVIDER;
-    }
-
-    @Override
-    public void onClick(View v)
-    {
-        if (isWorking)
-        {
-            stopLocation();
-        }
-        else
-        {
-            if (prepare())
-            {
-                startLocation();
-            }
-        }
-
-        setViewText(v, isWorking);
+        location = locationManager.getLastKnownLocation(providerName);
+        locationListener = new LMLocationListener(this);
     }
 
     @Override
@@ -88,7 +37,7 @@ public class GsmActivity extends BaseActivity
         executionTime = 0;
         messageBuilder.setLength(0);
 
-        ServiceHelper.getInstance().setWifiEnabled(false);
+        ServiceHelper.getInstance().setWifiEnabled(true);
 
         if (!ServiceHelper.getInstance().getMobileDataEnabled())
         {
@@ -96,7 +45,7 @@ public class GsmActivity extends BaseActivity
             messageBuilder.append("Włącz dane mobilne.\n");
         }
 
-        if (!locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+        if (!locationManager.isProviderEnabled(providerName))
         {
             result = false;
             messageBuilder.append("Zmień tryb określania pozycji na \"Tryb oszczędny\".\n");
@@ -114,26 +63,25 @@ public class GsmActivity extends BaseActivity
     @Override
     protected void startLocation()
     {
-        location = locationManager.getLastKnownLocation(providerName);
         locationManager.requestLocationUpdates(
                 providerName,
-                TimeUnit.SECONDS.toMillis(1),
+                TimeUnit.SECONDS.toMillis(interval),
                 MIN_DISTANCE,
                 locationListener
         );
 
         isWorking = true;
-
-        dumpStats(true);
-        measureTime(true);
+        collectStats();
+        runStopwatch();
     }
 
     @Override
     protected void stopLocation()
     {
         locationManager.removeUpdates(locationListener);
-        dumpStats(false);
-        measureTime(false);
         isWorking = false;
+        collectStats();
+        runStopwatch();
+
     }
 }

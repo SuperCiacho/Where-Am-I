@@ -7,5 +7,5 @@
     android:layout_marginEnd="8dp"
     android:layout_marginStart="8dp"
     android:layout_marginTop="5dp"
-    android:background="@color/background_material_dark"
+    android:background="#ff0a2533"
     />

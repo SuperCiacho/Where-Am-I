@@ -8,21 +8,38 @@ import android.util.Log;
  */
 public enum LocationStrategyType
 {
-    GPS(0, "GPS"),
-    GSM(1, "GSM/3G/LTE"),
-    NFC(3, "NFC"),
-    QR_CODE(4,"QR Code"),
-    WIFI(2, "Sieci WiFi"),
-    DEAD_RECKONING(5, "Nawigacja zliczniowa");
+    HIGH_ACCURACY(0, "Wysoka dokładność"),
+    NETWORK(1, "Sieci bezprzewodowe"),
+    GPS_ONLY(2, "Tylko GPS"),
+    FUSED_LOCATION(3, "Fused Location Provider");
 
+    private int value;
+    private String desc;
     LocationStrategyType(int id, String description)
     {
         value = id;
         desc = description;
     }
 
-    private int value;
-    private String desc;
+    public static LocationStrategyType getByValue(int value)
+    {
+        LocationStrategyType lst = null;
+        for (LocationStrategyType type : LocationStrategyType.values())
+        {
+            if (type.value == value)
+            {
+                lst = type;
+                break;
+            }
+        }
+
+        if (lst == null)
+        {
+            Log.d("Location Strategy Type", "Not found any LST for value:" + value);
+        }
+
+        return lst;
+    }
 
     public String getDescription()
     {
@@ -32,25 +49,5 @@ public enum LocationStrategyType
     public int getValue()
     {
         return value;
-    }
-
-    public static LocationStrategyType getByValue(int value)
-    {
-        LocationStrategyType lst = null;
-        for(LocationStrategyType type : LocationStrategyType.values())
-        {
-            if(type.value == value)
-            {
-                lst = type;
-                break;
-            }
-        }
-
-        if(lst == null)
-        {
-            Log.d("Location Strategy Type", "Not found any LST for value:" + value);
-        }
-
-        return lst;
     }
 }

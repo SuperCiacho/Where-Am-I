@@ -2,9 +2,7 @@ package master.pwr.whereami;
 
 import android.app.Application;
 
-import master.pwr.whereami.models.Stats;
 import master.pwr.whereami.tools.ServiceHelper;
-import master.pwr.whereami.tools.StatDumper;
 
 /**
  * "Where Am I?"
@@ -17,6 +15,5 @@ public class WhereAmI extends Application
     {
         super.onCreate();
         ServiceHelper.getInstance().setContext(this);
-        StatDumper.createInstance(this);
     }
 }

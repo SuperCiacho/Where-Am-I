@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="master.pwr.whereami" >
+<manifest
+    package="master.pwr.whereami"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <permission
         android:name="master.pwr.whereami.permission.MAPS_RECEIVE"
@@ -45,28 +46,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.GpsActivity"
-            android:label="@string/title_activity_gps" >
+            android:name=".activities.HighAccuracyActivity"
+            android:label="@string/title_activity_hi_acc">
         </activity>
         <activity
-            android:name=".activities.WifiActivity"
-            android:label="@string/title_activity_wifi" >
+            android:name=".activities.NetworkLocationActivity"
+            android:label="@string/title_activity_cells">
         </activity>
         <activity
-            android:name=".activities.QrCodeActivity"
-            android:label="@string/title_activity_qr_code" >
+            android:name=".activities.GpsOnlyActivity"
+            android:label="@string/title_activity_gps">
         </activity>
         <activity
-            android:name=".activities.NfcActivity"
-            android:label="@string/title_activity_nfc" >
-        </activity>
-        <activity
-            android:name=".activities.GsmActivity"
-            android:label="@string/title_activity_gsm" >
-        </activity>
-        <activity
-            android:name=".activities.DeadReckoningActivity"
-            android:label="@string/title_activity_dead_reckoning" >
+            android:name=".activities.FusedLocationActivity"
+            android:label="@string/title_activity_fused_location">
         </activity>
 
         <!-- [START] Google Map Api v2 -->
@@ -74,11 +67,6 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyAGIZVHxGmY74b_1QSmq5GI_tttYt2Iwt8" />
         <!-- [END] Google Map Api v2 -->
-
-        <activity
-            android:name=".activities.FusedLocationActivity"
-            android:label="@string/title_activity_fused_location" >
-        </activity>
     </application>
 
 </manifest>

@@ -1,14 +1,14 @@
 package master.pwr.whereami.fragments;
 
 import android.app.Activity;
-import android.os.Bundle;
 import android.app.ListFragment;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-import master.pwr.whereami.enums.LocationStrategyType;
 import master.pwr.whereami.adapters.LocationStrategiesAdapter;
+import master.pwr.whereami.enums.LocationStrategyType;
 
 public class MainFragment extends ListFragment
 {
@@ -24,19 +24,6 @@ public class MainFragment extends ListFragment
     private int mActivatedPosition = ListView.INVALID_POSITION;
     private BaseAdapter adapter;
     private Callbacks mCallbacks;
-
-    /**
-     * A callback interface that all activities containing this fragment must
-     * implement. This mechanism allows activities to be notified of item
-     * selections.
-     */
-    public interface Callbacks
-    {
-        /**
-         * Callback for when an item has been selected.
-         */
-        void onItemSelected(int locationStrategyType);
-    }
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -84,19 +71,13 @@ public class MainFragment extends ListFragment
     }
 
     @Override
-    public void onDetach()
-    {
-        super.onDetach();
-    }
-
-    @Override
     public void onListItemClick(ListView listView, View view, int position, long id)
     {
         super.onListItemClick(listView, view, position, id);
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(((LocationStrategyType)adapter.getItem(position)).getValue());
+        mCallbacks.onItemSelected(((LocationStrategyType) adapter.getItem(position)).getValue());
     }
 
     @Override
@@ -108,19 +89,6 @@ public class MainFragment extends ListFragment
             // Serialize and persist the activated item position.
             outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
         }
-    }
-
-    /**
-     * Turns on activate-on-click mode. When this mode is on, list items will be
-     * given the 'activated' state when touched.
-     */
-    public void setActivateOnItemClick(boolean activateOnItemClick)
-    {
-        // When setting CHOICE_MODE_SINGLE, ListView will automatically
-        // give items the 'activated' state when touched.
-        getListView().setChoiceMode(activateOnItemClick
-                ? ListView.CHOICE_MODE_SINGLE
-                : ListView.CHOICE_MODE_NONE);
     }
 
     private void setActivatedPosition(int position)
@@ -135,5 +103,18 @@ public class MainFragment extends ListFragment
         }
 
         mActivatedPosition = position;
+    }
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface Callbacks
+    {
+        /**
+         * Callback for when an item has been selected.
+         */
+        void onItemSelected(int locationStrategyType);
     }
 }

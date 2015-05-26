@@ -1,23 +1,16 @@
 <resources>
     <string name="app_name">Where Am I?</string>
-    <string name="title_location_strategy_detail">Metoda lokalizacji</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
     <string name="get_location">Określ pozycję</string>
-    <string name="explanation">Zbliż telefon do znacznika NFC</string>
 
-    <string name="scan_qr_code">Zeskanuj kod QR</string>
-    <string name="map">mapa</string>
+    <string name="map">Mapa</string>
     <string name="stats">Statystyki</string>
-    <string name="nfc_off">Moduł jest wyłączony. Włącz go.</string>
 
-    <string name="title_activity_gps">GPS</string>
-    <string name="title_activity_wifi">WiFI</string>
-    <string name="title_activity_nfc">NFC</string>
-    <string name="title_activity_dead_reckoning">Nawigacja zliczeniowa</string>
-    <string name="title_activity_gsm">GSM</string>
-    <string name="title_activity_qr_code">QR Code</string>
-    <string name="title_activity_fused_location">FusedLocationActivity</string>
+    <string name="title_activity_hi_acc">Wysoka dokładność</string>
+    <string name="title_activity_gps">Tylko GPS</string>
+    <string name="title_activity_cells">Sieci bezprzewodowe</string>
+    <string name="title_activity_fused_location">Fused Location Provider</string>
     <string name="abort_location">Przerwij lokalizowanie</string>
+    <string name="interval">Interwał:</string>
+    <string name="max_accuracy">Dokładność:</string>
 </resources>

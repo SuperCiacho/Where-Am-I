@@ -7,17 +7,16 @@
               android:baselineAligned="false"
               android:divider="?android:attr/dividerHorizontal"
               android:orientation="horizontal"
-              android:showDividers="middle"
-              tools:context=".LocationStartegyListActivity">
+              android:showDividers="middle">
 
     <!--
-    This layout is a two-pane layout for the LocationStartegies
+    This layout is a two-pane layout for the LocationStrategies
     master/detail flow.
     
     -->
 
     <fragment
-        android:id="@+id/locationstartegy_list"
+        android:id="@+id/location_strategy_list"
         android:name="master.pwr.whereami.fragments.MainFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"

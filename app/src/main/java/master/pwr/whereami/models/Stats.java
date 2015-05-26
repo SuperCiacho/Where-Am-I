@@ -10,12 +10,23 @@ import java.io.Serializable;
  */
 public class Stats implements Serializable
 {
+    @StatProperties(StringFormat = "Poziom baterii: %s [%%]", Order = 6)
     private int batteryLevel;
+    @StatProperties(StringFormat = "Napięcie baterii:%s [mV]", Order = 7)
     private int batteryVoltage;
+    @StatProperties(StringFormat = "Czas operacji: %s [ms]", Order = 4)
     private long executionTime;
+    @StatProperties(StringFormat = "Pozycja: %s", Order = 2)
     private LatLng position;
+    @StatProperties(StringFormat = "Metoda: %s", Order = 0)
     private String methodName;
+    @StatProperties(StringFormat = "Dokładność: %s [m]", Order = 1)
     private float accuracy;
+    @StatProperties(StringFormat = "Próba: %s", Order = 3)
+    private int attempt;
+    @StatProperties(StringFormat = "Interwał: %s", Order = 5)
+    private float interval;
+
 
     public int getBatteryLevel()
     {
@@ -47,14 +58,14 @@ public class Stats implements Serializable
         this.executionTime = executionTime;
     }
 
-    public void setPosition(LatLng position)
-    {
-        this.position = position;
-    }
-
     public LatLng getPosition()
     {
         return position;
+    }
+
+    public void setPosition(LatLng position)
+    {
+        this.position = position;
     }
 
     public String getMethodName()
@@ -75,5 +86,25 @@ public class Stats implements Serializable
     public void setAccuracy(float accuracy)
     {
         this.accuracy = accuracy;
+    }
+
+    public int getAttempt()
+    {
+        return attempt;
+    }
+
+    public void setAttempt(int attempt)
+    {
+        this.attempt = attempt;
+    }
+
+    public float getInterval()
+    {
+        return interval;
+    }
+
+    public void setInterval(float interval)
+    {
+        this.interval = interval;
     }
 }

@@ -6,9 +6,9 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,23 +33,22 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 {
     protected static final float MIN_DISTANCE = 0.0f;
     protected static final int MAX_ATTEMPTS = 100;
-
+    private static final float SUFFICIENT_ACCURACY = 10.0f;
     protected StringBuilder messageBuilder;
-    protected List<Stats> statsList;
-
     protected long executionTime;
     protected int attemptCounter;
-
-    protected BatteryStatsReader batteryStatsReader;
+    protected int interval;
     protected LocationManager locationManager;
-    protected LocationProvider locationProvider;
     protected String providerName;
     protected Location location;
-    protected LatLng position;
-
     protected boolean isWorking;
-
+    protected View locateButton;
+    private List<Stats> statsList;
+    private float accuracy;
+    private BatteryStatsReader batteryStatsReader;
+    private int activityLayoutId;
     private CustomMapFragment mapFragment;
+
     private View.OnClickListener onMapButtonClickListener = new View.OnClickListener()
     {
         @Override
@@ -58,6 +57,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
             showMapFragment(null);
         }
     };
+
     private View.OnClickListener onStatButtonClickListener = new View.OnClickListener()
     {
         @Override
@@ -86,12 +86,24 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         }
     };
 
+    public BaseActivity()
+    {
+        this(R.layout.activity_location_template);
+    }
+
+    public BaseActivity(int activityLayoutId)
+    {
+        this.activityLayoutId = activityLayoutId;
+
+        interval = 5;
+        accuracy = SUFFICIENT_ACCURACY;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_location_template);
-
+        setContentView(activityLayoutId);
         statsList = new ArrayList<>(4);
         messageBuilder = new StringBuilder();
 
@@ -100,8 +112,34 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
         showMapFragment(null);
 
+        setupSliders();
+
         batteryStatsReader = new BatteryStatsReader();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        if (isWorking)
+        {
+            stopLocation();
+            dumpStats();
+        }
+        else
+        {
+            if (prepare())
+            {
+                startLocation();
+            }
+            else
+            {
+                locateButton = v;
+            }
+
+        }
+
+        setViewText(v, isWorking);
     }
 
     protected abstract boolean prepare();
@@ -110,31 +148,42 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
     protected abstract void stopLocation();
 
-    protected void isLocationSufficient(Location location)
+    private synchronized void isLocationSufficient(Location location)
     {
-        if (++attemptCounter == MAX_ATTEMPTS || location.getAccuracy() < 11)
+        if (++attemptCounter == MAX_ATTEMPTS || (location != null && location.getAccuracy() < SUFFICIENT_ACCURACY))
         {
-            stopLocation();
+            onClick(locateButton);
         }
     }
 
-    protected String getName()
+    private String getName()
     {
         return getTitle().toString();
     }
 
-    protected void setViewText(View view, boolean isWorking)
+    private void setViewText(View view, boolean isWorking)
     {
         ((TextView) view).setText(isWorking ? R.string.abort_location : R.string.get_location);
     }
 
-    protected Stats retrieveStats()
+    public void setLocation(Location newLocation)
+    {
+        location = newLocation;
+    }
+
+    private synchronized Stats retrieveStats()
     {
         Stats stats = new Stats();
-        stats.setPosition(position);
+
         stats.setMethodName(getName());
         stats.setExecutionTime(System.currentTimeMillis() - executionTime);
-        stats.setAccuracy(location != null ? location.getAccuracy() : 10000.0f);
+        stats.setAttempt(attemptCounter);
+        stats.setInterval(accuracy);
+        if (location != null)
+        {
+            stats.setAccuracy(location.getAccuracy());
+            stats.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
+        }
         getBatteryStats(stats);
         return stats;
     }
@@ -146,18 +195,68 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         batteryStats.setBatteryVoltage(batteryStatsReader.getVoltage());
     }
 
-    public void measureTime(boolean start)
+    protected void runStopwatch()
     {
-        executionTime = start ? -System.currentTimeMillis() : 0;
+        executionTime = isWorking ? System.currentTimeMillis() : 0;
     }
 
-    public void dumpStats(boolean beforeLocation)
+    private void dumpStats()
     {
-        executionTime = 0;
-        Stats s = retrieveStats();
-        statsList.add(s);
-        String prefix = beforeLocation ? "[BEFORE]" : "[AFTER]";
-        StatDumper.getInstance().dumpLog(retrieveStats(), prefix);
+        StatDumper.getInstance().dumpLog(statsList, getName());
+    }
+
+    public void collectStats()
+    {
+        isLocationSufficient(location);
+        statsList.add(retrieveStats());
+    }
+
+    private void setupSliders()
+    {
+        final TextView intervalText = (TextView) findViewById(R.id.text);
+        final TextView sufficientAccuracy = (TextView) findViewById(R.id.text_1);
+
+        SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener()
+        {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
+            {
+                int id = seekBar.getId();
+                if (id == R.id.interval)
+                {
+                    BaseActivity.this.interval = progress;
+                    intervalText.setText(progress + "");
+                }
+                else if (id == R.id.accuracy)
+                {
+                    BaseActivity.this.accuracy = (float) progress;
+                    sufficientAccuracy.setText(progress + "");
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar)
+            {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar)
+            {
+
+            }
+        };
+
+        SeekBar slider = (SeekBar) findViewById(R.id.interval),
+                accuracySlider = (SeekBar) findViewById(R.id.accuracy);
+        slider.setOnSeekBarChangeListener(listener);
+        accuracySlider.setOnSeekBarChangeListener(listener);
+
+        slider.setProgress(interval);
+        accuracySlider.setProgress((int) accuracy);
+
+        intervalText.setText(interval + "");
+        sufficientAccuracy.setText(accuracy + "");
     }
 
     private CustomMapFragment getMapFragment()
@@ -176,7 +275,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         return mapFragment;
     }
 
-    protected void showMapFragment(Bundle args)
+    private void showMapFragment(Bundle args)
     {
         Fragment mf = getMapFragment();
         if (mf.isVisible()) return;
@@ -191,7 +290,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
                             .commit();
     }
 
-    protected void updateMap(MapUpdate update)
+    public void updateMap(MapUpdate update)
     {
         getMapFragment().updateMap(update);
     }

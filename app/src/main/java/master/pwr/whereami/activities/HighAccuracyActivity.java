@@ -2,77 +2,32 @@ package master.pwr.whereami.activities;
 
 import android.content.Intent;
 import android.location.GpsStatus;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.View;
 import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
 
 import master.pwr.whereami.activities.base.BaseActivity;
+import master.pwr.whereami.models.LMLocationListener;
 import master.pwr.whereami.models.MapUpdate;
 import master.pwr.whereami.tools.ServiceHelper;
 
-public class GpsActivity extends BaseActivity implements GpsStatus.Listener
+public class HighAccuracyActivity extends BaseActivity implements GpsStatus.Listener
 {
-    private LocationListener locationListener = new LocationListener()
-    {
-        @Override
-        public void onLocationChanged(Location location)
-        {
-            GpsActivity.this.location = location;
-            dumpStats(false);
-            updateMap(new MapUpdate(location));
-
-            isLocationSufficient(location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras)
-        {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider)
-        {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider)
-        {
-
-        }
-    };
+    private LocationListener locationListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        providerName = LocationManager.GPS_PROVIDER;
+        locationListener = new LMLocationListener(this);
+        providerName = String.format("%s & %s", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER);
         locationProvider = locationManager.getProvider(providerName);
-    }
 
-    @Override
-    public void onClick(View v)
-    {
-        if (isWorking)
-        {
-            stopLocation();
-        }
-        else
-        {
-            if (prepare())
-            {
-                startLocation();
-            }
-        }
-
-        setViewText(v, isWorking);
+        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 
     @Override
@@ -82,25 +37,30 @@ public class GpsActivity extends BaseActivity implements GpsStatus.Listener
 
         locationManager.addGpsStatusListener(this);
         locationManager.requestLocationUpdates(
-                providerName,
-                TimeUnit.SECONDS.toMillis(1),
+                LocationManager.GPS_PROVIDER,
+                TimeUnit.SECONDS.toMillis(interval),
+                MIN_DISTANCE,
+                locationListener
+        );
+        locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                TimeUnit.SECONDS.toMillis(interval),
                 MIN_DISTANCE,
                 locationListener
         );
 
         isWorking = true;
-
-        dumpStats(true);
-        measureTime(true);
+        collectStats();
+        runStopwatch();
     }
 
     @Override
     protected void stopLocation()
     {
         locationManager.removeUpdates(locationListener);
-        dumpStats(false);
-        measureTime(false);
         isWorking = false;
+        collectStats();
+        runStopwatch();
     }
 
     @Override
@@ -109,15 +69,14 @@ public class GpsActivity extends BaseActivity implements GpsStatus.Listener
         boolean result = true;
         attemptCounter = 0;
 
-        if (!locationManager.isProviderEnabled(providerName))
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
         {
             result = false;
-            Toast.makeText(this, "Zmień tryb na \"Tylko GPS\".", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Zmień tryb na \"Wysoka dokładność\".", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
 
-        ServiceHelper.getInstance().setWifiEnabled(false);
-
+        ServiceHelper.getInstance().setWifiEnabled(true);
 
         return result;
     }

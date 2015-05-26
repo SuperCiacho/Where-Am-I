@@ -1,9 +1,6 @@
 package master.pwr.whereami.tools;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
@@ -17,9 +14,8 @@ import java.util.Hashtable;
 public class ServiceHelper
 {
     private static ServiceHelper instance;
-
+    private final Hashtable<String, Object> services;
     private Context context;
-    private Hashtable<String, Object> services;
 
     private ServiceHelper()
     {
@@ -70,12 +66,6 @@ public class ServiceHelper
         }
     }
 
-    public int calculateDistance(ScanResult scanResult)
-    {
-        return WifiManager.calculateSignalLevel(scanResult.level, 1);
-    }
-
-
     /**
      * Mobile Data (Connectivity Manager)
      */
@@ -95,44 +85,6 @@ public class ServiceHelper
         int state = getTelephonyManager().getDataState();
         return state == TelephonyManager.DATA_CONNECTED || state == TelephonyManager.DATA_CONNECTING;
     }
-
-    public void setMobileDataEnabled(boolean mobileData)
-    {
-        Toast.makeText(
-                context,
-                String.format("%s dane mobilne.", mobileData ? "Włącz" : "Wyłącz"),
-                Toast.LENGTH_SHORT).show();
-
-        /*
-        Intent mobileDataIntent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
-        mobileDataIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(mobileDataIntent);
-        */
-    }
-
-    /**
-     * Sensor manager
-     */
-    private SensorManager getSensorManager()
-    {
-        if (!services.containsKey(Context.SENSOR_SERVICE))
-        {
-            services.put(Context.SENSOR_SERVICE, context.getSystemService(Context.SENSOR_SERVICE));
-        }
-
-        return (SensorManager) services.get(Context.SENSOR_SERVICE);
-    }
-
-    public boolean isSensorAvailable(int sensorType)
-    {
-        return getSensorManager().getDefaultSensor(sensorType) != null;
-    }
-
-    public Sensor getSensor(int sensorType)
-    {
-        return getSensorManager().getDefaultSensor(sensorType);
-    }
-
 }
 
 

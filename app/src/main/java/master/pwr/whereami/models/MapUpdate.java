@@ -10,8 +10,8 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class MapUpdate
 {
-    private LatLng position;
-    private float accuracy;
+    private final LatLng position;
+    private final float accuracy;
 
     public MapUpdate(LatLng position)
     {
@@ -30,6 +30,12 @@ public class MapUpdate
         this.accuracy = newLocation.getAccuracy();
     }
 
+    public static MapUpdate Default()
+    {
+        LatLng pos = new LatLng(51.5009489f, 18.006975f);
+        return new MapUpdate(pos);
+    }
+
     public LatLng getPosition()
     {
         return position;
@@ -38,11 +44,5 @@ public class MapUpdate
     public float getAccuracy()
     {
         return accuracy;
-    }
-
-    public static MapUpdate Default()
-    {
-        LatLng pos = new LatLng(51.5009489f, 18.006975f);
-        return new MapUpdate(pos, -1.0f);
     }
 }

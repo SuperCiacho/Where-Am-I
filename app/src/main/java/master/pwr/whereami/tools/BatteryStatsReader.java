@@ -1,6 +1,5 @@
 package master.pwr.whereami.tools;
 
-import android.app.ApplicationErrorReport;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,13 +14,10 @@ public class BatteryStatsReader extends BroadcastReceiver
 {
     private int level;
     private int voltage;
-    private ApplicationErrorReport.BatteryInfo batteryInfo;
-    private BatteryManager batteryManager;
 
     public BatteryStatsReader()
     {
-        batteryInfo = new ApplicationErrorReport.BatteryInfo();
-        batteryManager = new BatteryManager();
+
     }
 
     public void fetchBatteryStats(Context context)
@@ -55,15 +51,5 @@ public class BatteryStatsReader extends BroadcastReceiver
     public int getVoltage()
     {
         return voltage;
-    }
-
-    public ApplicationErrorReport.BatteryInfo getBatteryInfo()
-    {
-        return batteryInfo;
-    }
-
-    public BatteryManager getBatteryManager()
-    {
-        return batteryManager;
     }
 }

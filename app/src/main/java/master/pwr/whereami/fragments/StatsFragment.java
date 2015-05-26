@@ -2,8 +2,6 @@ package master.pwr.whereami.fragments;
 
 import android.app.ListFragment;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ListView;
 
 import java.io.Serializable;
 import java.util.List;
@@ -13,8 +11,12 @@ import master.pwr.whereami.models.Stats;
 
 public class StatsFragment extends ListFragment
 {
-    private static final String STATS_ARG = StatsFragment.class.getName();
     public static final String TAG = "Stats";
+    private static final String STATS_ARG = StatsFragment.class.getName();
+
+    public StatsFragment()
+    {
+    }
 
     public static StatsFragment newInstance(List<Stats> stats)
     {
@@ -25,10 +27,6 @@ public class StatsFragment extends ListFragment
         return sf;
     }
 
-    public StatsFragment()
-    {
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -37,15 +35,7 @@ public class StatsFragment extends ListFragment
         if(getArguments() != null)
         {
             List<Stats> data = (List<Stats>) getArguments().getSerializable(STATS_ARG);
-            setListAdapter(new StatsAdapter(data));
+            setListAdapter(new StatsAdapter(getActivity(), data));
         }
     }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id)
-    {
-        super.onListItemClick(l, v, position, id);
-
-    }
-
 }
