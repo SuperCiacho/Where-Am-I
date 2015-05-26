@@ -2,6 +2,7 @@ package master.pwr.whereami.adapters;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,10 +28,12 @@ public class StatsAdapter extends BaseAdapter
     private final LayoutInflater layoutInflater;
     private List<String> data;
     private int fieldsNumber;
+    private Handler handler;
 
     public StatsAdapter(Context context, final List<Stats> statistics)
     {
         layoutInflater = LayoutInflater.from(context);
+        handler = new Handler();
 
         new AsyncTask<Void, Void, Void>()
         {
@@ -70,16 +73,15 @@ public class StatsAdapter extends BaseAdapter
 
                     data.add(HEADER);
                     data.addAll(Arrays.asList(temp));
+                    handler.post(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            StatsAdapter.this.notifyDataSetChanged();
 
-                    /*
-                    data.add(String.format("Metoda: %s", s.getMethodName()));
-                    data.add(String.format("Dokładność: %s [m]", s.getAccuracy()));
-                    data.add(String.format("Pozycja: %s", s.getPosition()));
-                    data.add(String.format("Próba: %s", s.getAttempt()));
-                    data.add(String.format("Czas operacji: %s [ms]" , s.getExecutionTime()));
-                    data.add(String.format("Poziom baterii: %s [%%]", s.getBatteryLevel()));
-                    data.add(String.format("Napięcie baterii:%s [mV]", s.getBatteryVoltage()));
-                    */
+                        }
+                    });
                 }
                 return null;
             }
@@ -136,7 +138,7 @@ public class StatsAdapter extends BaseAdapter
 
         if (isHeader)
         {
-            vh.tv.setText("Pomiar " + ((position / 7) + 1));
+            vh.tv.setText("Pomiar " + ((position / fieldsNumber) + 1));
         }
         else
         {

@@ -33,7 +33,8 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 {
     protected static final float MIN_DISTANCE = 0.0f;
     protected static final int MAX_ATTEMPTS = 100;
-    private static final float SUFFICIENT_ACCURACY = 10.0f;
+    private static final float DEFAULT_ACCURACY = 10.0f;
+
     protected StringBuilder messageBuilder;
     protected long executionTime;
     protected int attemptCounter;
@@ -48,7 +49,6 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
     private BatteryStatsReader batteryStatsReader;
     private int activityLayoutId;
     private CustomMapFragment mapFragment;
-
     private View.OnClickListener onMapButtonClickListener = new View.OnClickListener()
     {
         @Override
@@ -95,8 +95,8 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
     {
         this.activityLayoutId = activityLayoutId;
 
-        interval = 5;
-        accuracy = SUFFICIENT_ACCURACY;
+        interval = 3;
+        accuracy = DEFAULT_ACCURACY;
     }
 
     @Override
@@ -150,7 +150,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
     private synchronized void isLocationSufficient(Location location)
     {
-        if (++attemptCounter == MAX_ATTEMPTS || (location != null && location.getAccuracy() < SUFFICIENT_ACCURACY))
+        if (++attemptCounter == MAX_ATTEMPTS || (location != null && location.getAccuracy() < accuracy))
         {
             onClick(locateButton);
         }
@@ -176,9 +176,9 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         Stats stats = new Stats();
 
         stats.setMethodName(getName());
-        stats.setExecutionTime(System.currentTimeMillis() - executionTime);
+        stats.setExecutionTime(executionTime == 0 ? 0 : System.currentTimeMillis() - executionTime);
         stats.setAttempt(attemptCounter);
-        stats.setInterval(accuracy);
+        stats.setInterval(interval);
         if (location != null)
         {
             stats.setAccuracy(location.getAccuracy());

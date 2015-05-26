@@ -12,6 +12,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -78,7 +79,14 @@ public class CustomMapFragment extends Fragment
         locateButton = (Button) v.findViewById(R.id.button);
         statusView = (TextView) v.findViewById(R.id.status);
 
-        locateButton.setOnClickListener(callback);
+        locateButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Toast.makeText(getActivity(), "Mapa nie jest jeszcze gotowa.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         MapFragment mapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(new OnMapReadyCallback()
@@ -95,6 +103,8 @@ public class CustomMapFragment extends Fragment
                 {
                     restoreView();
                 }
+
+                locateButton.setOnClickListener(callback);
             }
         });
 
@@ -123,7 +133,11 @@ public class CustomMapFragment extends Fragment
     {
         int zoom = calculateZoom(update.getAccuracy());
         setStatusText(update);
-        animateMarker(deviceMarker, accuracyMarker, update.getPosition(), update.getAccuracy());
+        //animateMarker(deviceMarker, accuracyMarker, update.getPosition(), update.getAccuracy());
+        deviceMarker.setPosition(update.getPosition());
+        accuracyMarker.setCenter(update.getPosition());
+        accuracyMarker.setRadius(update.getAccuracy());
+
         moveCameraToPosition(map, update.getPosition(), zoom);
     }
 
@@ -182,8 +196,8 @@ public class CustomMapFragment extends Fragment
 
                 if (t < 1.0)
                 {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
+                    // Post again 10ms later.
+                    handler.postDelayed(this, 10);
                 }
             }
         });

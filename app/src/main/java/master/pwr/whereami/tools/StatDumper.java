@@ -1,6 +1,7 @@
 package master.pwr.whereami.tools;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,7 +24,7 @@ public class StatDumper
 
     private StatDumper()
     {
-        gson = new Gson();
+        gson = new GsonBuilder().setPrettyPrinting().create();
         sdf = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault());
     }
 

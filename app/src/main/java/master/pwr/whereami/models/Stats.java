@@ -10,23 +10,22 @@ import java.io.Serializable;
  */
 public class Stats implements Serializable
 {
-    @StatProperties(StringFormat = "Poziom baterii: %s [%%]", Order = 6)
+    @StatProperties(StringFormat = "Poziom baterii [%%]: %s ", Order = 6)
     private int batteryLevel;
-    @StatProperties(StringFormat = "Napięcie baterii:%s [mV]", Order = 7)
+    @StatProperties(StringFormat = "Napięcie baterii [mV]: %s ", Order = 7)
     private int batteryVoltage;
-    @StatProperties(StringFormat = "Czas operacji: %s [ms]", Order = 4)
+    @StatProperties(StringFormat = "Czas operacji [ms]: %s ", Order = 4)
     private long executionTime;
     @StatProperties(StringFormat = "Pozycja: %s", Order = 2)
     private LatLng position;
     @StatProperties(StringFormat = "Metoda: %s", Order = 0)
     private String methodName;
-    @StatProperties(StringFormat = "Dokładność: %s [m]", Order = 1)
+    @StatProperties(StringFormat = "Dokładność [m]: %s", Order = 1)
     private float accuracy;
     @StatProperties(StringFormat = "Próba: %s", Order = 3)
     private int attempt;
-    @StatProperties(StringFormat = "Interwał: %s", Order = 5)
+    @StatProperties(StringFormat = "Interwał [s]: %s", Order = 5)
     private float interval;
-
 
     public int getBatteryLevel()
     {

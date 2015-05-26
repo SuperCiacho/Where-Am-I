@@ -25,8 +25,6 @@ public class HighAccuracyActivity extends BaseActivity implements GpsStatus.List
         super.onCreate(savedInstanceState);
         locationListener = new LMLocationListener(this);
         providerName = String.format("%s & %s", LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER);
-        locationProvider = locationManager.getProvider(providerName);
-
         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
     }
 

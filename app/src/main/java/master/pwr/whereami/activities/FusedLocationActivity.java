@@ -173,9 +173,7 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
     public void onLocationChanged(final Location location)
     {
         this.location = location;
-
         collectStats();
-
         updateMap(new MapUpdate(location));
     }
 }

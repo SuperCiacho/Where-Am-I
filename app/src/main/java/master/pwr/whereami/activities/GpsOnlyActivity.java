@@ -24,8 +24,6 @@ public class GpsOnlyActivity extends BaseActivity implements GpsStatus.Listener
     {
         super.onCreate(savedInstanceState);
         providerName = LocationManager.GPS_PROVIDER;
-        locationProvider = locationManager.getProvider(providerName);
-
         locationListener = new LMLocationListener(this);
     }
 
