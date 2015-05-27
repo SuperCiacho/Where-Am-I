@@ -2,6 +2,7 @@ package master.pwr.whereami.activities;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -22,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import master.pwr.whereami.R;
 import master.pwr.whereami.activities.base.BaseActivity;
 import master.pwr.whereami.models.MapUpdate;
+import master.pwr.whereami.models.Stats;
 
 public class FusedLocationActivity extends BaseActivity implements GoogleApiClient.ConnectionCallbacks,
                                                                    GoogleApiClient.OnConnectionFailedListener,
@@ -31,12 +33,13 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
     private GoogleApiClient googleApiClient;
 
     private int priority;
+    private String priorityName;
 
     private LocationRequest locationRequest;
 
     public FusedLocationActivity()
     {
-        super(R.layout.activity_fused_location);
+        super(R.layout.activity_fused_location, 10.0f);
 
         fusedLocationProviderApi = LocationServices.FusedLocationApi;
         priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
@@ -53,9 +56,8 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
+                .setGravityForPopups(Gravity.TOP)
                 .build();
-
-        location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
     }
 
     private void setupSpinner()
@@ -73,6 +75,8 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
+                priorityName = parent.getItemAtPosition(position).toString();
+
                 switch (position)
                 {
                     default:
@@ -121,7 +125,7 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
         {
             locationRequest = new LocationRequest();
             locationRequest.setNumUpdates(MAX_ATTEMPTS);
-            locationRequest.setSmallestDisplacement(0.0f);
+            locationRequest.setSmallestDisplacement(MIN_DISTANCE);
         }
 
         locationRequest.setFastestInterval(1);
@@ -175,5 +179,13 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
         this.location = location;
         collectStats();
         updateMap(new MapUpdate(location));
+    }
+
+    @Override
+    protected synchronized Stats retrieveStats()
+    {
+        Stats s = super.retrieveStats();
+        s.setCriteria(priorityName);
+        return s;
     }
 }

@@ -11,7 +11,7 @@ import java.io.Serializable;
 public class Stats implements Serializable
 {
     @StatProperties(StringFormat = "Poziom baterii [%%]: %s ", Order = 6)
-    private int batteryLevel;
+    private float batteryLevel;
     @StatProperties(StringFormat = "Napięcie baterii [mV]: %s ", Order = 7)
     private int batteryVoltage;
     @StatProperties(StringFormat = "Czas operacji [ms]: %s ", Order = 4)
@@ -26,13 +26,16 @@ public class Stats implements Serializable
     private int attempt;
     @StatProperties(StringFormat = "Interwał [s]: %s", Order = 5)
     private float interval;
+    @StatProperties(StringFormat = "Kryterium : %s", Order = 8)
+    private String criteria;
 
-    public int getBatteryLevel()
+
+    public float getBatteryLevel()
     {
         return batteryLevel;
     }
 
-    public void setBatteryLevel(int batteryLevel)
+    public void setBatteryLevel(float batteryLevel)
     {
         this.batteryLevel = batteryLevel;
     }
@@ -105,5 +108,15 @@ public class Stats implements Serializable
     public void setInterval(float interval)
     {
         this.interval = interval;
+    }
+
+    public String getCriteria()
+    {
+        return criteria;
+    }
+
+    public void setCriteria(String criteria)
+    {
+        this.criteria = criteria;
     }
 }

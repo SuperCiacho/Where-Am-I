@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.location.GpsStatus;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -19,10 +18,10 @@ public class GpsOnlyActivity extends BaseActivity implements GpsStatus.Listener
 {
     private LocationListener locationListener;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
+    public GpsOnlyActivity()
     {
-        super.onCreate(savedInstanceState);
+        super(25.0f);
+
         providerName = LocationManager.GPS_PROVIDER;
         locationListener = new LMLocationListener(this);
     }

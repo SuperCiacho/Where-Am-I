@@ -3,7 +3,6 @@ package master.pwr.whereami.activities;
 import android.content.Intent;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -21,12 +20,11 @@ public class NetworkLocationActivity extends BaseActivity
 {
     private LocationListener locationListener;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
+    public NetworkLocationActivity()
     {
-        super.onCreate(savedInstanceState);
+        super(50.0f);
+
         providerName = LocationManager.NETWORK_PROVIDER;
-        location = locationManager.getLastKnownLocation(providerName);
         locationListener = new LMLocationListener(this);
     }
 
@@ -63,6 +61,8 @@ public class NetworkLocationActivity extends BaseActivity
     @Override
     protected void startLocation()
     {
+        location = locationManager.getLastKnownLocation(providerName);
+
         locationManager.requestLocationUpdates(
                 providerName,
                 TimeUnit.SECONDS.toMillis(interval),

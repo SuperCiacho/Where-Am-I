@@ -1,8 +1,6 @@
 package master.pwr.whereami.adapters;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,70 +26,24 @@ public class StatsAdapter extends BaseAdapter
     private final LayoutInflater layoutInflater;
     private List<String> data;
     private int fieldsNumber;
-    private Handler handler;
+    private Field[] fields;
+    private String[] temp;
 
-    public StatsAdapter(Context context, final List<Stats> statistics)
+
+    public StatsAdapter(Context context)
     {
         layoutInflater = LayoutInflater.from(context);
-        handler = new Handler();
+        data = new ArrayList<>();
 
-        new AsyncTask<Void, Void, Void>()
-        {
-            @Override
-            protected Void doInBackground(Void... params)
-            {
-                Field[] fields = Stats.class.getDeclaredFields();
-                fieldsNumber = fields.length;
-                data = new ArrayList<>(fieldsNumber * statistics.size());
-
-                String[] temp = new String[fieldsNumber];
-                for (Stats s : statistics)
-                {
-                    Arrays.fill(temp, null);
-
-                    for (Field f : fields)
-                    {
-                        boolean originalFlag = f.isAccessible();
-                        try
-                        {
-                            if (f.isAnnotationPresent(StatProperties.class))
-                            {
-                                StatProperties props = f.getAnnotation(StatProperties.class);
-                                f.setAccessible(true);
-                                temp[props.Order()] = String.format(props.StringFormat(), f.get(s));
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            e.printStackTrace();
-                        }
-                        finally
-                        {
-                            f.setAccessible(originalFlag);
-                        }
-                    }
-
-                    data.add(HEADER);
-                    data.addAll(Arrays.asList(temp));
-                    handler.post(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            StatsAdapter.this.notifyDataSetChanged();
-
-                        }
-                    });
-                }
-                return null;
-            }
-        }.execute();
+        fields = Stats.class.getDeclaredFields();
+        fieldsNumber = fields.length;
+        temp = new String[fieldsNumber];
     }
 
     @Override
     public int getItemViewType(int position)
     {
-        return data.get(position).equals(HEADER) ? 0 : 1;
+        return data != null && data.size() > position && data.get(position).equals(HEADER) ? 0 : 1;
     }
 
     @Override
@@ -109,7 +61,7 @@ public class StatsAdapter extends BaseAdapter
     @Override
     public Object getItem(int position)
     {
-        return data.get(position);
+        return data == null ? null : data.get(position);
     }
 
     @Override
@@ -123,7 +75,7 @@ public class StatsAdapter extends BaseAdapter
     {
         ViewHolder vh;
         boolean isHeader = getItemViewType(position) == 0;
-        if(convertView == null)
+        if (convertView == null)
         {
             int layoutId = isHeader ? R.layout.list_item_header : android.R.layout.activity_list_item;
             convertView = layoutInflater.inflate(layoutId, parent, false);
@@ -147,6 +99,63 @@ public class StatsAdapter extends BaseAdapter
 
         return convertView;
     }
+
+    public void add(Stats stats)
+    {
+        add(stats, true);
+    }
+
+    private void add(Stats stats, boolean shouldNotify)
+    {
+        Arrays.fill(temp, null);
+
+        for (Field f : fields)
+        {
+            boolean originalFlag = f.isAccessible();
+            try
+            {
+                if (f.isAnnotationPresent(StatProperties.class))
+                {
+                    StatProperties props = f.getAnnotation(StatProperties.class);
+                    f.setAccessible(true);
+                    temp[props.Order()] = String.format(props.StringFormat(), f.get(stats));
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                f.setAccessible(originalFlag);
+            }
+        }
+
+        data.add(HEADER);
+        data.addAll(Arrays.asList(temp));
+
+        if (shouldNotify) notifyDataSetChanged();
+    }
+
+    public void addRange(List<Stats> statsList)
+    {
+        for (Stats stats : statsList)
+        {
+            add(stats, false);
+        }
+
+        notifyDataSetChanged();
+    }
+
+    public void clear()
+    {
+        if (data != null)
+        {
+            data.clear();
+            notifyDataSetChanged();
+        }
+    }
+
 
     private static class ViewHolder
     {

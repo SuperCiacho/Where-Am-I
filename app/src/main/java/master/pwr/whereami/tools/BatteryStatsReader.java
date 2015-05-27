@@ -12,13 +12,8 @@ import android.os.BatteryManager;
  */
 public class BatteryStatsReader extends BroadcastReceiver
 {
-    private int level;
+    private float level;
     private int voltage;
-
-    public BatteryStatsReader()
-    {
-
-    }
 
     public void fetchBatteryStats(Context context)
     {
@@ -35,7 +30,7 @@ public class BatteryStatsReader extends BroadcastReceiver
         int rawLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         if (rawLevel >= 0 && scale > 0) {
-            level = (rawLevel * 100) / scale;
+            level = (rawLevel * 100) / (float) scale;
         }
         else
             level = rawLevel;
@@ -43,7 +38,7 @@ public class BatteryStatsReader extends BroadcastReceiver
         voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
     }
 
-    public int getLevel()
+    public float getLevel()
     {
         return level;
     }

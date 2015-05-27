@@ -32,8 +32,7 @@ import master.pwr.whereami.tools.StatDumper;
 public abstract class BaseActivity extends Activity implements View.OnClickListener
 {
     protected static final float MIN_DISTANCE = 0.0f;
-    protected static final int MAX_ATTEMPTS = 100;
-    private static final float DEFAULT_ACCURACY = 10.0f;
+    protected static final int MAX_ATTEMPTS = 25;
 
     protected StringBuilder messageBuilder;
     protected long executionTime;
@@ -57,7 +56,6 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
             showMapFragment(null);
         }
     };
-
     private View.OnClickListener onStatButtonClickListener = new View.OnClickListener()
     {
         @Override
@@ -77,6 +75,10 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
             {
                 statsFragment = StatsFragment.newInstance(statsList);
             }
+            else
+            {
+                statsFragment.setArguments(StatsFragment.getArgs(statsList));
+            }
 
             if (statsFragment.isVisible()) return;
 
@@ -88,15 +90,23 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
     public BaseActivity()
     {
-        this(R.layout.activity_location_template);
+        this(R.layout.activity_location_template, 10.0f);
     }
 
-    public BaseActivity(int activityLayoutId)
+    public BaseActivity(float defaultAccuracy)
+    {
+        this(R.layout.activity_location_template, defaultAccuracy);
+    }
+
+    public BaseActivity(int activityLayoutId, float defaultAccuracy)
     {
         this.activityLayoutId = activityLayoutId;
-
         interval = 3;
-        accuracy = DEFAULT_ACCURACY;
+        accuracy = defaultAccuracy;
+
+        statsList = new ArrayList<>(4);
+        messageBuilder = new StringBuilder();
+        batteryStatsReader = new BatteryStatsReader();
     }
 
     @Override
@@ -104,17 +114,11 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
     {
         super.onCreate(savedInstanceState);
         setContentView(activityLayoutId);
-        statsList = new ArrayList<>(4);
-        messageBuilder = new StringBuilder();
-
         findViewById(R.id.button_1).setOnClickListener(onMapButtonClickListener);
         findViewById(R.id.button_2).setOnClickListener(onStatButtonClickListener);
-
         showMapFragment(null);
-
         setupSliders();
 
-        batteryStatsReader = new BatteryStatsReader();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
@@ -125,6 +129,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         {
             stopLocation();
             dumpStats();
+            onStatButtonClickListener.onClick(null);
         }
         else
         {
@@ -150,9 +155,9 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
     private synchronized void isLocationSufficient(Location location)
     {
-        if (++attemptCounter == MAX_ATTEMPTS || (location != null && location.getAccuracy() < accuracy))
+        if (++attemptCounter == MAX_ATTEMPTS || (location != null && (location.getAccuracy() - accuracy < 1.0f)))
         {
-            onClick(locateButton);
+            if (isWorking) onClick(locateButton);
         }
     }
 
@@ -171,7 +176,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         location = newLocation;
     }
 
-    private synchronized Stats retrieveStats()
+    protected synchronized Stats retrieveStats()
     {
         Stats stats = new Stats();
 
@@ -184,6 +189,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
             stats.setAccuracy(location.getAccuracy());
             stats.setPosition(new LatLng(location.getLatitude(), location.getLongitude()));
         }
+
         getBatteryStats(stats);
         return stats;
     }

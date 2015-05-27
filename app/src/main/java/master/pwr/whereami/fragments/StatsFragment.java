@@ -14,6 +14,8 @@ public class StatsFragment extends ListFragment
     public static final String TAG = "Stats";
     private static final String STATS_ARG = StatsFragment.class.getName();
 
+    StatsAdapter adapter;
+
     public StatsFragment()
     {
     }
@@ -21,21 +23,37 @@ public class StatsFragment extends ListFragment
     public static StatsFragment newInstance(List<Stats> stats)
     {
         StatsFragment sf = new StatsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(STATS_ARG, (Serializable) stats);
-        sf.setArguments(args);
+        sf.setArguments(getArgs(stats));
         return sf;
     }
+
+    public static Bundle getArgs(List<Stats> stats)
+    {
+        Bundle args = new Bundle();
+        args.putSerializable(STATS_ARG, (Serializable) stats);
+        return args;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        if(getArguments() != null)
+        if (adapter == null && getArguments() != null)
         {
-            List<Stats> data = (List<Stats>) getArguments().getSerializable(STATS_ARG);
-            setListAdapter(new StatsAdapter(getActivity(), data));
+            adapter = new StatsAdapter(getActivity());
         }
+
+        Bundle args = getArguments();
+        if (args != null)
+        {
+            adapter.clear();
+            adapter.addRange((List<Stats>) args.getSerializable(STATS_ARG));
+        }
+
+        setListAdapter(adapter);
     }
+
+
 }

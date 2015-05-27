@@ -13,4 +13,13 @@
     <string name="abort_location">Przerwij lokalizowanie</string>
     <string name="interval">Interwał:</string>
     <string name="max_accuracy">Dokładność:</string>
+    <string name="in_vehicle">W pojeździe</string>
+    <string name="on_bicycle">Na rowerze</string>
+    <string name="on_foot">Pieszo</string>
+    <string name="running">Biegnie</string>
+    <string name="still">Stoi</string>
+    <string name="tilting">Ruch urządzenia</string>
+    <string name="unknown">Nieznane</string>
+    <string name="walking">Idzie</string>
+    <string name="unidentifiable_activity">\???</string>
 </resources>
