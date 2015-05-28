@@ -37,13 +37,13 @@ public class StatDumper
         return instance;
     }
 
-    public void dumpLog(List<Stats> stats, String methodName)
+    public void dumpLog(List<Stats> stats, String methodName, String tag)
     {
         File root = android.os.Environment.getExternalStorageDirectory();
         File dir = new File(root.getAbsolutePath() + "/Where Am I/Logs");
         dir.mkdirs();
 
-        String filename = String.format("Log [%s][%s].txt", methodName, sdf.format(new Date()));
+        String filename = String.format("Log [%s][%s]%s.txt", methodName, sdf.format(new Date()), tag);
 
         File file = new File(dir, filename);
 

@@ -32,7 +32,7 @@
             style="?android:spinnerDropDownItemStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#ff5dbaff"
+            android:background="@drawable/spinner_bg"
             android:dropDownSelector="#ffddb821"
             android:spinnerMode="dropdown"
             />

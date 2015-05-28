@@ -10,12 +10,14 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class MapUpdate
 {
+    private static final LatLng DEFAULT_POSITION = new LatLng(51.5009489f, 18.006975f);
+    private static final float DEFAULT_ACCURACY = 10000.0f;
     private final LatLng position;
     private final float accuracy;
 
     public MapUpdate(LatLng position)
     {
-        this(position, 0.0f);
+        this(position, DEFAULT_ACCURACY);
     }
 
     public MapUpdate(LatLng position, float accuracy)
@@ -26,14 +28,17 @@ public class MapUpdate
 
     public MapUpdate(Location newLocation)
     {
-        this.position = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-        this.accuracy = newLocation.getAccuracy();
+        this(newLocation == null ?
+                        DEFAULT_POSITION :
+                        new LatLng(newLocation.getLatitude(), newLocation.getLongitude()),
+                newLocation == null ?
+                        DEFAULT_ACCURACY :
+                        newLocation.getAccuracy());
     }
 
     public static MapUpdate Default()
     {
-        LatLng pos = new LatLng(51.5009489f, 18.006975f);
-        return new MapUpdate(pos);
+        return new MapUpdate(DEFAULT_POSITION);
     }
 
     public LatLng getPosition()

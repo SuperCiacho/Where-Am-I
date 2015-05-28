@@ -22,4 +22,17 @@
     <string name="unknown">Nieznane</string>
     <string name="walking">Idzie</string>
     <string name="unidentifiable_activity">\???</string>
+    <string name="input_prompt">Info o pomiarze:</string>
+
+    <string-array name="in_out">
+        <item>In</item>
+        <item>Out</item>
+    </string-array>
+
+    <string-array name="locations">
+        <item>Urban</item>
+        <item>Suburbia</item>
+        <item>Rural</item>
+    </string-array>
+
 </resources>

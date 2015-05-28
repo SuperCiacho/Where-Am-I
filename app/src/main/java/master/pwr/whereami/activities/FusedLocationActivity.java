@@ -2,7 +2,6 @@ package master.pwr.whereami.activities;
 
 import android.location.Location;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -56,7 +55,6 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .setGravityForPopups(Gravity.TOP)
                 .build();
     }
 
@@ -139,6 +137,7 @@ public class FusedLocationActivity extends BaseActivity implements GoogleApiClie
     protected void startLocation()
     {
         isWorking = true;
+        location = fusedLocationProviderApi.getLastLocation(googleApiClient);
         fusedLocationProviderApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         collectStats();
         runStopwatch();

@@ -129,6 +129,11 @@ public class CustomMapFragment extends Fragment
         callback = listener;
     }
 
+    public View getLocateButton()
+    {
+        return locateButton;
+    }
+
     public void updateMap(MapUpdate update)
     {
         int zoom = calculateZoom(update.getAccuracy());

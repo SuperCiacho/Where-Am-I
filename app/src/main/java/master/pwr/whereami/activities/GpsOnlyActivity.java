@@ -5,6 +5,7 @@ import android.location.GpsStatus;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.provider.Settings;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import java.util.concurrent.TimeUnit;
@@ -20,7 +21,7 @@ public class GpsOnlyActivity extends BaseActivity implements GpsStatus.Listener
 
     public GpsOnlyActivity()
     {
-        super(25.0f);
+        super(15.0f);
 
         providerName = LocationManager.GPS_PROVIDER;
         locationListener = new LMLocationListener(this);
@@ -74,6 +75,8 @@ public class GpsOnlyActivity extends BaseActivity implements GpsStatus.Listener
 
     public void onGpsStatusChanged(int event)
     {
+        Toast t = null;
+
         switch (event)
         {
             case GpsStatus.GPS_EVENT_FIRST_FIX:
@@ -82,13 +85,19 @@ public class GpsOnlyActivity extends BaseActivity implements GpsStatus.Listener
             case GpsStatus.GPS_EVENT_SATELLITE_STATUS:
                 break;
             case GpsStatus.GPS_EVENT_STARTED:
-                Toast.makeText(this, "Rozpoczęto określanie pozycji", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "Rozpoczęto określanie pozycji", Toast.LENGTH_SHORT);
                 updateMap(MapUpdate.Default());
                 break;
             case GpsStatus.GPS_EVENT_STOPPED:
-                Toast.makeText(this, "Zakończono określanie pozycji", Toast.LENGTH_SHORT).show();
+                t = Toast.makeText(this, "Zakończono określanie pozycji", Toast.LENGTH_SHORT);
                 updateMap(new MapUpdate(location));
                 break;
+        }
+
+        if (t != null)
+        {
+            t.setGravity(Gravity.TOP, 0, 0);
+            t.show();
         }
     }
 }

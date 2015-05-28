@@ -22,7 +22,7 @@ public class NetworkLocationActivity extends BaseActivity
 
     public NetworkLocationActivity()
     {
-        super(50.0f);
+        super(15.0f);
 
         providerName = LocationManager.NETWORK_PROVIDER;
         locationListener = new LMLocationListener(this);
@@ -33,25 +33,14 @@ public class NetworkLocationActivity extends BaseActivity
     {
         boolean result = true;
         executionTime = 0;
-        messageBuilder.setLength(0);
 
         ServiceHelper.getInstance().setWifiEnabled(true);
-
-        if (!ServiceHelper.getInstance().getMobileDataEnabled())
-        {
-            result = false;
-            messageBuilder.append("Włącz dane mobilne.\n");
-        }
 
         if (!locationManager.isProviderEnabled(providerName))
         {
             result = false;
-            messageBuilder.append("Zmień tryb określania pozycji na \"Tryb oszczędny\".\n");
-        }
-
-        if (!result)
-        {
-            Toast.makeText(this, messageBuilder.toString(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Zmień tryb określania pozycji na \"Tryb oszczędny\".\nPamiętaj o włączeniu danych komórkowych!", Toast.LENGTH_LONG)
+                 .show();
             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
         }
 

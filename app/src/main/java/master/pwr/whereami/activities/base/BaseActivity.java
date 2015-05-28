@@ -1,14 +1,21 @@
 package master.pwr.whereami.activities.base;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +41,6 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
     protected static final float MIN_DISTANCE = 0.0f;
     protected static final int MAX_ATTEMPTS = 25;
 
-    protected StringBuilder messageBuilder;
     protected long executionTime;
     protected int attemptCounter;
     protected int interval;
@@ -61,30 +67,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         @Override
         public void onClick(View v)
         {
-
-            if (statsList.isEmpty())
-            {
-                Toast.makeText(getApplicationContext(), "Brak statystyk", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            FragmentManager fm = getFragmentManager();
-            Fragment statsFragment = getFragmentManager().findFragmentByTag(StatsFragment.TAG);
-
-            if (statsFragment == null)
-            {
-                statsFragment = StatsFragment.newInstance(statsList);
-            }
-            else
-            {
-                statsFragment.setArguments(StatsFragment.getArgs(statsList));
-            }
-
-            if (statsFragment.isVisible()) return;
-
-            fm.beginTransaction()
-              .replace(R.id.inner_fragment_container, statsFragment, CustomMapFragment.TAG)
-              .commit();
+            showStats();
         }
     };
 
@@ -105,8 +88,6 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         accuracy = defaultAccuracy;
 
         statsList = new ArrayList<>(4);
-        messageBuilder = new StringBuilder();
-        batteryStatsReader = new BatteryStatsReader();
     }
 
     @Override
@@ -119,6 +100,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         showMapFragment(null);
         setupSliders();
 
+        batteryStatsReader = BatteryStatsReader.getInstance(this);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     }
 
@@ -129,7 +111,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
         {
             stopLocation();
             dumpStats();
-            onStatButtonClickListener.onClick(null);
+            showStats();
         }
         else
         {
@@ -137,14 +119,32 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
             {
                 startLocation();
             }
-            else
-            {
-                locateButton = v;
-            }
-
         }
 
-        setViewText(v, isWorking);
+        if (v != null)
+        {
+            setViewText(v, isWorking);
+            locateButton = v;
+        }
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        registerReceiver(batteryStatsReader, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        unregisterReceiver(batteryStatsReader);
+        if (statsList.size() > 0)
+        {
+            StatDumper.getInstance().dumpLog(statsList, getName(), "[Emergency Save]");
+            statsList.clear();
+        }
     }
 
     protected abstract boolean prepare();
@@ -196,7 +196,6 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
     private void getBatteryStats(Stats batteryStats)
     {
-        batteryStatsReader.fetchBatteryStats(this);
         batteryStats.setBatteryLevel(batteryStatsReader.getLevel());
         batteryStats.setBatteryVoltage(batteryStatsReader.getVoltage());
     }
@@ -208,7 +207,7 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
 
     private void dumpStats()
     {
-        StatDumper.getInstance().dumpLog(statsList, getName());
+        viewInputDialog();
     }
 
     public void collectStats()
@@ -300,4 +299,74 @@ public abstract class BaseActivity extends Activity implements View.OnClickListe
     {
         getMapFragment().updateMap(update);
     }
+
+    protected void showStats()
+    {
+        if (statsList.isEmpty())
+        {
+            Toast.makeText(getApplicationContext(), "Brak statystyk", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        FragmentManager fm = getFragmentManager();
+        Fragment statsFragment = getFragmentManager().findFragmentByTag(StatsFragment.TAG);
+
+        if (statsFragment == null)
+        {
+            statsFragment = StatsFragment.newInstance(statsList);
+        }
+        else
+        {
+            statsFragment.setArguments(StatsFragment.getArgs(statsList));
+        }
+
+        if (statsFragment.isVisible()) return;
+
+        fm.beginTransaction()
+          .replace(R.id.inner_fragment_container, statsFragment, StatsFragment.TAG)
+          .commit();
+    }
+
+    private void viewInputDialog()
+    {
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.note_prompt, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        alertDialogBuilder.setView(promptsView);
+
+        final EditText userInput = (EditText) promptsView.findViewById(R.id.editText);
+        final Spinner inOut = (Spinner) promptsView.findViewById(R.id.spinner);
+        final Spinner loc = (Spinner) promptsView.findViewById(R.id.spinner1);
+
+        // set dialog message
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("Zapisz pomiar",
+                        new DialogInterface.OnClickListener()
+                        {
+                            public void onClick(DialogInterface dialog, int id)
+                            {
+                                String tag = String.format("[%s][%s][%s]",
+                                        loc.getSelectedItem(),
+                                        inOut.getSelectedItem(),
+                                        userInput.getText().toString());
+                                StatDumper.getInstance().dumpLog(statsList, getName(), tag);
+                                statsList.clear();
+                            }
+                        })
+                .setNegativeButton("Usuń pomiar", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                        statsList.clear();
+                    }
+                })
+                .create()
+                .show();
+    }
+
 }
